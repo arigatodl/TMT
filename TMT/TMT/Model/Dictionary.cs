@@ -45,7 +45,11 @@ namespace TMT.Model
         public List<String> TLWordList
         {
             get;
-            set;
+            set
+            {
+                TLWordList = value;
+                OnPropertyChanged("TLWordList");
+            }
         }
 
         private string _Type;
@@ -55,7 +59,11 @@ namespace TMT.Model
         public String Type
         {
             get;
-            set;
+            set
+            {
+                Type = value;
+                OnPropertyChanged("Type");
+            }
         }
 
         #region INotifyPropertyChanged Members
@@ -73,7 +81,6 @@ namespace TMT.Model
         }
 
         #endregion
-
 
     }
 }
