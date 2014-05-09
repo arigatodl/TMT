@@ -9,6 +9,10 @@ namespace TMT.Model
 
     public class Dictionary : INotifyPropertyChanged
     {
+        private List<String> tLWordList;
+        private string sLWord;
+        private string type;
+
         /// <summary>
         /// Parameterized Constructer
         /// </summary>
@@ -21,7 +25,7 @@ namespace TMT.Model
             TLWordList = arg1;
             Type = arg2;
         }
-        private string _SLWord;
+        
         /// <summary>
         /// Gets or sets the Source Language Word
         /// </summary>
@@ -29,39 +33,45 @@ namespace TMT.Model
         {
             get
             {
-                return SLWord;
+                return sLWord;
             }
             set
             {
-                SLWord = value;
+                sLWord = value;
                 OnPropertyChanged("SLWord");
             }
         }
 
-        private List<String> _TLWordList;
+        
         /// <summary>
         /// Gets or sets the Target Language Word
         /// </summary>
         public List<String> TLWordList
         {
-            get;
+            get
+            {
+                return tLWordList;
+            }
             set
             {
-                TLWordList = value;
+                tLWordList = value;
                 OnPropertyChanged("TLWordList");
             }
         }
 
-        private string _Type;
+        
         /// <summary>
         /// Gets or sets the Type
         /// </summary>
         public String Type
         {
-            get;
+            get
+            {
+                return type;
+            }
             set
             {
-                Type = value;
+                type = value;
                 OnPropertyChanged("Type");
             }
         }
