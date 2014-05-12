@@ -11,6 +11,7 @@ namespace TMT.Model
     {
         private List<Dictionary> words;
         private string rawData;
+        private string extractedData;
 
         public List<Dictionary> Words
         {
@@ -38,14 +39,30 @@ namespace TMT.Model
             }
         }
 
+        public String ExtractedData
+        {
+            get
+            {
+                return extractedData;
+            }
+            set
+            {
+                extractedData = value;
+                OnPropertyChanged("ExtractedData");
+            }
+        }
+
         public void ExtractWords(List<String> words, List<String> types)
         {
+            extractedData = "";
             this.words = new List<Dictionary>();
             for (int i = 0; i < words.Count; i++)
             {
                 Dictionary d = new Dictionary(words[i],null,types[i]);
                 this.words.Add(d);
+                extractedData += words[i] + ":" + types[i] + "\n";
             }
+            OnPropertyChanged("ExtractedData");
         }
 
         #region INotifyPropertyChanged Members

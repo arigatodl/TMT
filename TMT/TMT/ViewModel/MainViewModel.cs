@@ -7,21 +7,19 @@ using System.Threading.Tasks;
 using System.Windows.Input;
 using TMT.Model;
 using TMT.Command;
-using zemberek.morphology.apps;
-using zemberek.morphology.ambiguity;
-using zemberek.morphology.parser;
-using System.Collections.Generic;
 
 namespace TMT.ViewModel
 {
     class MainViewModel
     {
         private Text data;
+        const string readPath = "C:\\Users\\Public\\iTranslator\\outputText.txt";
+        const string writePath = "C:\\Users\\Public\\iTranslator\\inputText.txt";
+
 
         public MainViewModel()
         {
             data = new Text();
-            data.RawData = "aaaa";
             TranslateViaText = new TranslateViaTextCommand(this);
         }
 
@@ -46,17 +44,30 @@ namespace TMT.ViewModel
             private set;
         }
 
+        public void writeText()
+        {
+            System.IO.File.WriteAllText(writePath, data.RawData);
+        }
+
+        public void loadWords()
+        {
+            string[] lines = System.IO.File.ReadAllLines(readPath);
+            List<string> words = new List<string>();
+            List<string> types = new List<string>();
+            foreach (string line in lines)
+            {
+                words.Add(line);
+                types.Add("LOL");
+            }
+            data.ExtractWords(words,types);
+            Console.WriteLine("DONE");
+        }
+
         public void SeperateText()
         {
-            TurkishMorphParser parser = TurkishMorphParser.createWithDefaults();
-		    TurkishSentenceParser sentenceParser = new TurkishSentenceParser(parser, new Z3MarkovModelDisambiguator());
-
-            List<MorphParse> parseRes = (List<MorphParse>)sentenceParser.bestParse(Data.RawData);
-	        foreach (MorphParse p in parseRes) 
-            {
-	                Console.WriteLine(p.getLemma());
-	        }
-            
+            writeText();
+            iPackage.Convert.extract();
+            loadWords();
         }
     }
 }

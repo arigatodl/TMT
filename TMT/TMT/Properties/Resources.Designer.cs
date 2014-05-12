@@ -59,15 +59,5 @@ namespace TMT.Properties {
                 resourceCulture = value;
             }
         }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Byte[].
-        /// </summary>
-        internal static byte[] Turkish_Extractor {
-            get {
-                object obj = ResourceManager.GetObject("Turkish_Extractor", resourceCulture);
-                return ((byte[])(obj));
-            }
-        }
     }
 }
