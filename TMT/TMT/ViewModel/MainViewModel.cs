@@ -11,6 +11,8 @@ using TMT.Command;
 namespace TMT.ViewModel
 {
     using MongoDB.Driver;
+    using MongoDB.Driver.Builders;
+    using MongoDB.Bson;
 
     class MainViewModel
     {
@@ -58,10 +60,34 @@ namespace TMT.ViewModel
             List<string> Types = new List<string>();
             List<string> TLWords = new List<string>();
             
-            Console.WriteLine("DONE");
             MongoDatabase db = MongoDulguun.mongoServer.GetDatabase(MongoDulguun.databaseName);
-            var t = db.GetCollection<Dictionary>("iWords");
+            var dbCollection = db.GetCollection<Dictionary>("iWords");
+            IMongoQuery query;
 
+            foreach(string line in lines)
+            {
+                query = Query.And(
+                    Query.Matches("SLWordDB", line));
+
+                var filteredCollection = dbCollection.FindOne(query);
+                if (filteredCollection != null)
+                {
+                    SLWords.Add(filteredCollection.SLWord);
+                    Types.Add(filteredCollection.Type);
+                    TLWords.Add(filteredCollection.TLWord);
+                }
+                else
+                {
+                    SLWords.Add("???");
+                    Types.Add("UNK");
+                    TLWords.Add("UNK");
+                }
+            }
+
+            data.ExtractWords(SLWords, TLWords, Types);
+            
+            
+            /*
             var s = t.FindAll();
             foreach (var haha in s)
             {
@@ -70,7 +96,7 @@ namespace TMT.ViewModel
                 TLWords.Add(haha.TLWord);
                 Console.WriteLine(haha.Type);
             }
-            data.ExtractWords(SLWords,TLWords,Types);
+            data.ExtractWords(SLWords,TLWords,Types);*/
 
         }
 
