@@ -52,15 +52,15 @@ namespace TMT.Model
             }
         }
 
-        public void ExtractWords(List<String> words, List<String> types)
+        public void ExtractWords(List<String> SLWords, List<String> TLWords, List<String> Types)
         {
             extractedData = "";
             this.words = new List<Dictionary>();
-            for (int i = 0; i < words.Count; i++)
+            for (int i = 0; i < SLWords.Count; i++)
             {
-                Dictionary d = new Dictionary(words[i],null,types[i]);
+                Dictionary d = new Dictionary(SLWords[i],TLWords[i],Types[i]);
                 this.words.Add(d);
-                extractedData += words[i] + ":" + types[i] + "\n";
+                extractedData += SLWords[i] + ":" + Types[i] + ":" + TLWords[i] + "\n" ;
             }
             OnPropertyChanged("ExtractedData");
         }

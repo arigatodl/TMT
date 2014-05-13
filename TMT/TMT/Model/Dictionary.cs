@@ -6,11 +6,20 @@ using System.Configuration;
 
 namespace TMT.Model
 {
+    using MongoDB.Bson;
+    using MongoDB.Bson.Serialization.Attributes;
+    using MongoDB.Driver;
 
-    public class Dictionary : INotifyPropertyChanged
+    [BsonIgnoreExtraElements]
+    public class Dictionary : MongoEntity, INotifyPropertyChanged
     {
-        private List<String> tLWordList;
+        [BsonElement("TLWordDB")]
+        private string tLWord;
+        
+        [BsonElement("SLWordDB")]
         private string sLWord;
+
+        [BsonElement("TypeDB")]
         private string type;
 
         /// <summary>
@@ -19,10 +28,10 @@ namespace TMT.Model
         /// <param name="arg0">Source Language Word</param>
         /// <param name="arg1">Target Language Word List</param>
         /// <param name="arg2">Type</param>
-        public Dictionary(String arg0, List<String> arg1, String arg2)
+        public Dictionary(String arg0, String arg1, String arg2)
         {
             SLWord = arg0;
-            TLWordList = arg1;
+            TLWord = arg1;
             Type = arg2;
         }
         
@@ -46,16 +55,16 @@ namespace TMT.Model
         /// <summary>
         /// Gets or sets the Target Language Word
         /// </summary>
-        public List<String> TLWordList
+        public String TLWord
         {
             get
             {
-                return tLWordList;
+                return tLWord;
             }
             set
             {
-                tLWordList = value;
-                OnPropertyChanged("TLWordList");
+                tLWord = value;
+                OnPropertyChanged("TLWord");
             }
         }
 

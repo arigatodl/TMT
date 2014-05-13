@@ -10,6 +10,8 @@ using TMT.Command;
 
 namespace TMT.ViewModel
 {
+    using MongoDB.Driver;
+
     class MainViewModel
     {
         private Text data;
@@ -52,15 +54,24 @@ namespace TMT.ViewModel
         public void loadWords()
         {
             string[] lines = System.IO.File.ReadAllLines(readPath);
-            List<string> words = new List<string>();
-            List<string> types = new List<string>();
-            foreach (string line in lines)
-            {
-                words.Add(line);
-                types.Add("LOL");
-            }
-            data.ExtractWords(words,types);
+            List<string> SLWords = new List<string>();
+            List<string> Types = new List<string>();
+            List<string> TLWords = new List<string>();
+            
             Console.WriteLine("DONE");
+            MongoDatabase db = MongoDulguun.mongoServer.GetDatabase(MongoDulguun.databaseName);
+            var t = db.GetCollection<Dictionary>("iWords");
+
+            var s = t.FindAll();
+            foreach (var haha in s)
+            {
+                SLWords.Add(haha.SLWord);
+                Types.Add(haha.Type);
+                TLWords.Add(haha.TLWord);
+                Console.WriteLine(haha.Type);
+            }
+            data.ExtractWords(SLWords,TLWords,Types);
+
         }
 
         public void SeperateText()

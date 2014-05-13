@@ -99,7 +99,10 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Command\TranslateViaTextCommand.cs" />
+    <Compile Include="IMongoEntity.cs" />
     <Compile Include="Model\Text.cs" />
+    <Compile Include="MongoDulguun.cs" />
+    <Compile Include="MongoEntity.cs" />
     <Compile Include="ViewModel\MainViewModel.cs" />
     <Compile Include="View\MainWindowView.xaml.cs">
       <DependentUpon>MainWindowView.xaml</DependentUpon>
