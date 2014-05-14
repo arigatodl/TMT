@@ -22,17 +22,21 @@ namespace TMT.Model
         [BsonElement("TypeDB")]
         private string type;
 
+        private List<string> suffixes;
+
         /// <summary>
         /// Parameterized Constructer
         /// </summary>
         /// <param name="arg0">Source Language Word</param>
-        /// <param name="arg1">Target Language Word List</param>
+        /// <param name="arg1">Target Language Word</param>
         /// <param name="arg2">Type</param>
-        public Dictionary(String arg0, String arg1, String arg2)
+        /// <param name="arg3">Suffix</param>
+        public Dictionary(String arg0, String arg1, String arg2, List<String> arg3)
         {
             SLWord = arg0;
             TLWord = arg1;
             Type = arg2;
+            Suffixes = arg3;
         }
         
         /// <summary>
@@ -65,12 +69,14 @@ namespace TMT.Model
             {
                 tLWord = value;
                 OnPropertyChanged("TLWord");
+                Console.WriteLine("Changed");
             }
         }
 
         
         /// <summary>
-        /// Gets or sets the Type
+        /// Gets or sets the Type of the word 
+        /// Ex. VB, Noun, ...
         /// </summary>
         public String Type
         {
@@ -82,6 +88,23 @@ namespace TMT.Model
             {
                 type = value;
                 OnPropertyChanged("Type");
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the Suffix of the word
+        /// Ex. Fut, Aor, Loc, ...
+        /// </summary>
+        public List<String> Suffixes
+        {
+            get
+            {
+                return suffixes;
+            }
+            set
+            {
+                suffixes = value;
+                OnPropertyChanged("Suffixes");
             }
         }
 

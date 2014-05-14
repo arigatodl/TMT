@@ -98,6 +98,7 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Command\TranslateViaVoiceCommand.cs" />
     <Compile Include="Command\TranslateViaTextCommand.cs" />
     <Compile Include="IMongoEntity.cs" />
     <Compile Include="Model\Text.cs" />
@@ -136,9 +137,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="ViewModel\empty.txt" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.5">

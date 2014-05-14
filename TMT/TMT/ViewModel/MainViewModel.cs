@@ -13,28 +13,59 @@ namespace TMT.ViewModel
     using MongoDB.Driver;
     using MongoDB.Driver.Builders;
     using MongoDB.Bson;
+    using System.Collections.ObjectModel;
 
     class MainViewModel
     {
-        private Text data;
+        private string data;
+        private Boolean changeState;
+        private ObservableCollection<Dictionary> dictionaries;
         const string readPath = "C:\\Users\\Public\\iTranslator\\outputText.txt";
         const string writePath = "C:\\Users\\Public\\iTranslator\\inputText.txt";
 
+        string SLWord;
+        string Type;
+        string TLWord;
+        List<string> Suffixes;
 
         public MainViewModel()
         {
-            data = new Text();
+            dictionaries = new ObservableCollection<Dictionary>();
             TranslateViaText = new TranslateViaTextCommand(this);
+            TranslateViaVoice = new TranslateViaVoiceCommand(this);
         }
 
         /// <summary>
-        /// Gets the data
+        /// Gets data
         /// </summary>
-        public Text Data
+        public string Data
         {
             get
             {
                 return data;
+            }
+            set
+            {
+                data = value;
+            }
+        }
+
+        public Boolean ChangeState
+        {
+            get
+            {
+                return changeState;
+            }
+        }
+
+        /// <summary>
+        /// Gets dictionaies
+        /// </summary>
+        public ObservableCollection<Dictionary> Dictionaries
+        {
+            get
+            {
+                return dictionaries;
             }
         }
 
@@ -48,63 +79,108 @@ namespace TMT.ViewModel
             private set;
         }
 
+        public ICommand TranslateViaVoice
+        {
+            get;
+            private set;
+        }
+
+        /// <summary>
+        /// Writes the input data to the output text file
+        /// </summary>
         public void writeText()
         {
-            System.IO.File.WriteAllText(writePath, data.RawData);
+            System.IO.File.WriteAllText(writePath, data);
         }
 
-        public void loadWords()
+        /// <summary>
+        /// Extracts the output text file
+        /// </summary>
+        public void extract()
         {
-            string[] lines = System.IO.File.ReadAllLines(readPath);
-            List<string> SLWords = new List<string>();
-            List<string> Types = new List<string>();
-            List<string> TLWords = new List<string>();
-            
-            MongoDatabase db = MongoDulguun.mongoServer.GetDatabase(MongoDulguun.databaseName);
-            var dbCollection = db.GetCollection<Dictionary>("iWords");
-            IMongoQuery query;
-
-            foreach(string line in lines)
+            try
             {
-                query = Query.And(
-                    Query.Matches("SLWordDB", line));
+                MongoDatabase db = MongoDulguun.mongoServer.GetDatabase(MongoDulguun.databaseName);
+                IMongoQuery query;
 
-                var filteredCollection = dbCollection.FindOne(query);
-                if (filteredCollection != null)
+                dictionaries.Clear();
+                changeState = false;
+
+                string[] lines = System.IO.File.ReadAllLines(readPath);
+                Suffixes = new List<string>();
+
+                foreach (string line in lines)
                 {
-                    SLWords.Add(filteredCollection.SLWord);
-                    Types.Add(filteredCollection.Type);
-                    TLWords.Add(filteredCollection.TLWord);
+                    SLWord = line.Split(';')[0];
+                    Type = line.Split(';')[1];
+
+                    if (line.Split(';').Length > 3)
+                    {
+                        string temp;
+                        foreach (string suffix in line.Split(';')[3].Split('+'))
+                        {
+                            temp = suffix;
+                            if (suffix.EndsWith(")")) { temp = suffix.Remove(suffix.Length - 1); }
+                            Suffixes.Add(temp);
+                            Console.WriteLine(temp);
+                        }
+                    }
+
+                    dictionaries.Add(new Dictionary(SLWord, "", Type, Suffixes));
                 }
-                else
+
+                var dbCollection1 = db.GetCollection<Dictionary>("skipTypes");
+                var dbCollection2 = db.GetCollection<Dictionary>("iWords");
+
+                foreach (Dictionary d in dictionaries)
                 {
-                    SLWords.Add("???");
-                    Types.Add("UNK");
-                    TLWords.Add("UNK");
+                    query = Query.And(
+                        Query.Matches("TypeDB", d.Type)
+                        );
+                    var filteredCollection1 = dbCollection1.FindOne(query);
+                    if (filteredCollection1 != null)
+                    {
+                        d.TLWord = d.SLWord;
+                    }
+
+                    query = Query.And(
+                            Query.Matches("SLWordDB", d.SLWord)
+                            );
+                    var filteredCollection2 = dbCollection2.FindOne(query);
+                    if (filteredCollection2 != null)
+                    {
+                        d.TLWord = (filteredCollection2.TLWord);
+                    }
+                    else
+                    {
+                        d.TLWord = "UNK";
+                    }
                 }
             }
-
-            data.ExtractWords(SLWords, TLWords, Types);
-            
-            
-            /*
-            var s = t.FindAll();
-            foreach (var haha in s)
+            catch
             {
-                SLWords.Add(haha.SLWord);
-                Types.Add(haha.Type);
-                TLWords.Add(haha.TLWord);
-                Console.WriteLine(haha.Type);
+                Console.WriteLine("Database Error");
             }
-            data.ExtractWords(SLWords,TLWords,Types);*/
-
         }
 
+
+        /// <summary>
+        /// Main Translation procedure
+        /// </summary>
         public void SeperateText()
         {
             writeText();
             iPackage.Convert.extract();
-            loadWords();
+            Console.WriteLine("Converted");
+            extract();
+        }
+
+        /// <summary>
+        /// Runs the SpeechRecognition and saves the output to the data.RawData
+        /// </summary>
+        public void Listen()
+        {
+
         }
     }
 }
