@@ -14,14 +14,20 @@ namespace TMT.ViewModel
     using MongoDB.Driver.Builders;
     using MongoDB.Bson;
     using System.Collections.ObjectModel;
+    using System.Collections.Specialized;
+    using System.ComponentModel;
+    using System.Windows;
+    using System.Windows.Media;
+    using System.Runtime.InteropServices;
 
-    class MainViewModel
+    class MainViewModel:INotifyPropertyChanged
     {
         private string data;
         private Boolean changeState;
         private ObservableCollection<Dictionary> dictionaries;
         const string readPath = "C:\\Users\\Public\\iTranslator\\outputText.txt";
         const string writePath = "C:\\Users\\Public\\iTranslator\\inputText.txt";
+        const string speechPath = "..\\..\\Resources\\Capture2Text\\Output\\speech_to_text.txt";
 
         string SLWord;
         string Type;
@@ -31,8 +37,28 @@ namespace TMT.ViewModel
         public MainViewModel()
         {
             dictionaries = new ObservableCollection<Dictionary>();
+            dictionaries.CollectionChanged += dictionaries_CollectionChanged;
             TranslateViaText = new TranslateViaTextCommand(this);
             TranslateViaVoice = new TranslateViaVoiceCommand(this);
+        }
+
+        private void dictionaries_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        {
+            if (e.Action == NotifyCollectionChangedAction.Add)
+            {
+                foreach (Dictionary d in e.NewItems)
+                {
+                    d.PropertyChanged += d_PropertyChanged;
+                }
+            }
+        }
+
+        private void d_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == "TLWord")
+            {
+                ChangeState = true;
+            }
         }
 
         /// <summary>
@@ -50,11 +76,19 @@ namespace TMT.ViewModel
             }
         }
 
+        /// <summary>
+        /// Gets changeState
+        /// </summary>
         public Boolean ChangeState
         {
             get
             {
                 return changeState;
+            }
+            set
+            {
+                changeState = value;
+                OnPropertyChanged("ChangeState");
             }
         }
 
@@ -79,6 +113,9 @@ namespace TMT.ViewModel
             private set;
         }
 
+        /// <summary>
+        /// Gets the TranslateViaVoice command for the ViewModel
+        /// </summary>
         public ICommand TranslateViaVoice
         {
             get;
@@ -98,8 +135,8 @@ namespace TMT.ViewModel
         /// </summary>
         public void extract()
         {
-            try
-            {
+            //try
+            //{
                 MongoDatabase db = MongoDulguun.mongoServer.GetDatabase(MongoDulguun.databaseName);
                 IMongoQuery query;
 
@@ -156,11 +193,11 @@ namespace TMT.ViewModel
                         d.TLWord = "UNK";
                     }
                 }
-            }
-            catch
+            //}
+            /*catch
             {
                 Console.WriteLine("Database Error");
-            }
+            }*/
         }
 
 
@@ -173,14 +210,48 @@ namespace TMT.ViewModel
             iPackage.Convert.extract();
             Console.WriteLine("Converted");
             extract();
+            Console.WriteLine(changeState);
         }
+
+        [DllImport("user32.dll")]
+        static extern void keybd_event(byte bVk, byte bScan, uint dwFlags,
+           UIntPtr dwExtraInfo);
 
         /// <summary>
         /// Runs the SpeechRecognition and saves the output to the data.RawData
         /// </summary>
         public void Listen()
         {
+            uint KEYEVENTF_KEYUP = 0x0002;
+            uint KEYEVENTF_EXTENDEDKEY = 0x0001;
 
+            ChangeState = true;
+            keybd_event((byte)0x5B, (byte)0, (uint)KEYEVENTF_EXTENDEDKEY | 0, (UIntPtr) 0);
+            keybd_event((byte)0x41, (byte)0, (uint)KEYEVENTF_EXTENDEDKEY | 0, (UIntPtr)0);
+            keybd_event((byte)0x5B, 0, KEYEVENTF_EXTENDEDKEY | KEYEVENTF_KEYUP, (UIntPtr)0);
+            keybd_event((byte)0x41, 0, KEYEVENTF_EXTENDEDKEY | KEYEVENTF_KEYUP, (UIntPtr)0);
+            /*
+            string[] lines = System.IO.File.ReadAllLines(speechPath);
+            foreach(string line in lines)
+            {
+                Console.WriteLine(line);
+            }*/
         }
+
+        #region INotifyPropertyChanged Members
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        private void OnPropertyChanged(string propertyName)
+        {
+            PropertyChangedEventHandler handler = PropertyChanged;
+
+            if (handler != null)
+            {
+                handler(this, new PropertyChangedEventArgs(propertyName));
+            }
+        }
+
+        #endregion
     }
 }

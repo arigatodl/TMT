@@ -67,9 +67,16 @@ namespace TMT.Model
             }
             set
             {
-                tLWord = value;
-                OnPropertyChanged("TLWord");
-                Console.WriteLine("Changed");
+                if (tLWord == null || tLWord == "")
+                {
+                    tLWord = value;
+                }
+                else
+                {
+                    tLWord = value;
+                    OnPropertyChanged("TLWord");
+                }
+                
             }
         }
 
@@ -114,7 +121,7 @@ namespace TMT.Model
 
         private void OnPropertyChanged(string propertyName)
         {
-            PropertyChangedEventHandler handler = PropertyChanged;
+            PropertyChangedEventHandler handler = PropertyChanged; 
 
             if (handler != null)
             {

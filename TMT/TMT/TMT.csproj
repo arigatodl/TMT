@@ -50,25 +50,26 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="ICSharpCode.SharpZipLib">
-      <HintPath>..\..\..\..\..\Desktop\ikvm-7.2.4630.5\bin\ICSharpCode.SharpZipLib.dll</HintPath>
+      <HintPath>ReferenceFiles\ICSharpCode.SharpZipLib.dll</HintPath>
     </Reference>
     <Reference Include="IKVM.OpenJDK.Core">
-      <HintPath>..\..\..\..\..\Desktop\ikvm-7.2.4630.5\bin\IKVM.OpenJDK.Core.dll</HintPath>
+      <HintPath>ReferenceFiles\IKVM.OpenJDK.Core.dll</HintPath>
     </Reference>
     <Reference Include="IKVM.Runtime">
-      <HintPath>..\..\..\..\..\Desktop\ikvm-7.2.4630.5\bin\IKVM.Runtime.dll</HintPath>
+      <HintPath>ReferenceFiles\IKVM.Runtime.dll</HintPath>
     </Reference>
     <Reference Include="IKVM.Runtime.JNI">
-      <HintPath>..\..\..\..\..\Desktop\ikvm-7.2.4630.5\bin\IKVM.Runtime.JNI.dll</HintPath>
+      <HintPath>ReferenceFiles\IKVM.Runtime.JNI.dll</HintPath>
     </Reference>
     <Reference Include="MongoDB.Bson">
-      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\MongoDB\CSharpDriver 1.9\MongoDB.Bson.dll</HintPath>
+      <HintPath>ReferenceFiles\MongoDB.Bson.dll</HintPath>
     </Reference>
     <Reference Include="MongoDB.Driver">
-      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\MongoDB\CSharpDriver 1.9\MongoDB.Driver.dll</HintPath>
+      <HintPath>ReferenceFiles\MongoDB.Driver.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Xml" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Core" />
@@ -98,10 +99,10 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="BoolToVisConverter.cs" />
     <Compile Include="Command\TranslateViaVoiceCommand.cs" />
     <Compile Include="Command\TranslateViaTextCommand.cs" />
     <Compile Include="IMongoEntity.cs" />
-    <Compile Include="Model\Text.cs" />
     <Compile Include="MongoDulguun.cs" />
     <Compile Include="MongoEntity.cs" />
     <Compile Include="ViewModel\MainViewModel.cs" />
@@ -156,7 +157,13 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Resources\" />
+    <WCFMetadata Include="Service References\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\Accept.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Resources\Capture2Text\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
