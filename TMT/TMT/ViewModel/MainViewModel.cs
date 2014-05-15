@@ -19,46 +19,37 @@ namespace TMT.ViewModel
     using System.Windows;
     using System.Windows.Media;
     using System.Runtime.InteropServices;
+    using System.Linq;
 
     class MainViewModel:INotifyPropertyChanged
     {
         private string data;
         private Boolean changeState;
-        private ObservableCollection<Dictionary> dictionaries;
+        private ObservableCollection<DandS> dandss;
         const string readPath = "C:\\Users\\Public\\iTranslator\\outputText.txt";
         const string writePath = "C:\\Users\\Public\\iTranslator\\inputText.txt";
         const string speechPath = "..\\..\\Resources\\Capture2Text\\Output\\speech_to_text.txt";
+        const string generateWritePath = "..\\..\\Resources\\RFConvPre\\iGen.txt";
+        const string generateReadPath = "..\\..\\Resources\\RFConvPre\\result_g.txt";
 
         string SLWord;
         string Type;
-        string TLWord;
-        List<string> Suffixes;
+        string Suffix;
 
         public MainViewModel()
         {
-            dictionaries = new ObservableCollection<Dictionary>();
-            dictionaries.CollectionChanged += dictionaries_CollectionChanged;
+            dandss = new ObservableCollection<DandS>();
+
+            dandss.CollectionChanged += dandss_CollectionChanged;
             TranslateViaText = new TranslateViaTextCommand(this);
             TranslateViaVoice = new TranslateViaVoiceCommand(this);
+            AcceptUpdateDB = new AcceptUpdateDBCommand(this);
+            CancelUpdateDB = new DeclineUpdateDBCommand(this);
         }
 
-        private void dictionaries_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        void dandss_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
-            if (e.Action == NotifyCollectionChangedAction.Add)
-            {
-                foreach (Dictionary d in e.NewItems)
-                {
-                    d.PropertyChanged += d_PropertyChanged;
-                }
-            }
-        }
-
-        private void d_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
-        {
-            if (e.PropertyName == "TLWord")
-            {
-                ChangeState = true;
-            }
+            ChangeState = true;
         }
 
         /// <summary>
@@ -93,17 +84,17 @@ namespace TMT.ViewModel
         }
 
         /// <summary>
-        /// Gets dictionaies
+        /// Gets dandsd\s
         /// </summary>
-        public ObservableCollection<Dictionary> Dictionaries
+        public ObservableCollection<DandS> Dandss
         {
             get
             {
-                return dictionaries;
+                return dandss;
             }
         }
 
-
+        #region Commands
         /// <summary>
         /// Gets the TranslateViaText command for the ViewModel
         /// </summary>
@@ -123,11 +114,30 @@ namespace TMT.ViewModel
         }
 
         /// <summary>
+        /// Gets the AcceptUpdateDB command for the ViewModel
+        /// </summary>
+        public ICommand AcceptUpdateDB
+        {
+            get;
+            private set;
+        }
+
+        /// <summary>
+        /// Gets the CancelUpdateDB command for the ViewModel
+        /// </summary>
+        public ICommand CancelUpdateDB
+        {
+            get;
+            private set;
+        }
+        #endregion
+
+        /// <summary>
         /// Writes the input data to the output text file
         /// </summary>
         public void writeText()
         {
-            System.IO.File.WriteAllText(writePath, data);
+            System.IO.File.WriteAllText(writePath, data, Encoding.UTF8);
         }
 
         /// <summary>
@@ -135,16 +145,15 @@ namespace TMT.ViewModel
         /// </summary>
         public void extract()
         {
-            //try
-            //{
+            try
+            {
                 MongoDatabase db = MongoDulguun.mongoServer.GetDatabase(MongoDulguun.databaseName);
                 IMongoQuery query;
 
-                dictionaries.Clear();
+                dandss.Clear();
                 changeState = false;
 
                 string[] lines = System.IO.File.ReadAllLines(readPath);
-                Suffixes = new List<string>();
 
                 foreach (string line in lines)
                 {
@@ -158,48 +167,119 @@ namespace TMT.ViewModel
                         {
                             temp = suffix;
                             if (suffix.EndsWith(")")) { temp = suffix.Remove(suffix.Length - 1); }
-                            Suffixes.Add(temp);
-                            Console.WriteLine(temp);
+                            if(!temp.Equals("Nom") && !temp.Equals("P3sg")) Suffix = temp;
                         }
                     }
 
-                    dictionaries.Add(new Dictionary(SLWord, "", Type, Suffixes));
+
+                    Dictionary tempDictionary = null;
+                    SuffixClass tempSuffixClass = null;
+
+                    foreach(DandS dand in dandss)
+                    {
+                        if (dand.Dict.SLWord.Equals(SLWord) && dand.Dict.Type.Equals(Type) && dand.Dict.Suffix.Equals(Suffix))
+                        {
+                            tempDictionary = dand.Dict;
+                            break;
+                        }
+                    }
+
+                    foreach (DandS dand in dandss)
+                    {
+                        if (dand.Suffix.Suffix.Equals(Suffix))
+                        {
+                            tempSuffixClass = dand.Suffix;
+                            break;
+                        }
+                    }
+
+                    if (tempSuffixClass == null) tempSuffixClass = new SuffixClass(Suffix, "");
+                    if (tempDictionary == null) tempDictionary = new Dictionary(SLWord, "", Type, Suffix);
+                    dandss.Add(new DandS(tempDictionary, tempSuffixClass));
                 }
 
                 var dbCollection1 = db.GetCollection<Dictionary>("skipTypes");
                 var dbCollection2 = db.GetCollection<Dictionary>("iWords");
+                var dbCollection3 = db.GetCollection<SuffixClass>("iSuffixes");
 
-                foreach (Dictionary d in dictionaries)
+                foreach (DandS d in dandss)
                 {
                     query = Query.And(
-                        Query.Matches("TypeDB", d.Type)
+                        Query.Matches("Type", d.Dict.Type)
                         );
                     var filteredCollection1 = dbCollection1.FindOne(query);
                     if (filteredCollection1 != null)
                     {
-                        d.TLWord = d.SLWord;
-                    }
-
-                    query = Query.And(
-                            Query.Matches("SLWordDB", d.SLWord)
-                            );
-                    var filteredCollection2 = dbCollection2.FindOne(query);
-                    if (filteredCollection2 != null)
-                    {
-                        d.TLWord = (filteredCollection2.TLWord);
+                        d.Dict.TLWord = d.Dict.SLWord;
                     }
                     else
                     {
-                        d.TLWord = "UNK";
+                        query = Query.And(
+                                    Query.Matches("SLWord", d.Dict.SLWord),
+                                    Query.Matches("Type", d.Dict.Type),
+                                    Query.Matches("Suffix", d.Dict.Suffix)
+                                );
+                        var filteredCollection2 = dbCollection2.FindOne(query);
+
+                        if (filteredCollection2 != null)
+                        {
+                            d.Dict.Id = filteredCollection2.Id;
+                            d.Dict.TLWord = (filteredCollection2.TLWord);
+
+                            query = Query.And(
+                                       Query.Matches("SLWord", d.Dict.SLWord),
+                                       Query.Matches("Type", d.Dict.Type),
+                                       Query.Matches("Suffix", d.Dict.Suffix),
+                                       Query.Matches("TLSuffix", d.Dict.TLSuffix)
+                                    );
+                            var filteredCollection3 = dbCollection2.FindOne(query);
+
+                            if (filteredCollection3 != null)
+                            {
+                                d.Dict.TLSuffix = filteredCollection3.TLSuffix;
+                            }
+                        }                        
+                        else
+                        {
+                            d.Dict.TLWord = "???";
+                        }
+                        query = Query.And(
+                                       Query.Matches("Suffix", d.Dict.Suffix)
+                                    );
+                        var filteredCollection4 = dbCollection3.FindOne(query);
+                        if (filteredCollection4 != null)
+                        {
+                            d.Suffix.Id = filteredCollection4.Id;
+                            d.Suffix.TLSuffix = filteredCollection4.TLSuffix;
+                        }
                     }
                 }
-            //}
-            /*catch
+            }
+            catch
             {
                 Console.WriteLine("Database Error");
-            }*/
+            }
         }
 
+        public void generate()
+        {
+            string data = "";
+            foreach(DandS d in dandss)
+            {
+                data += d.Dict.TLWord + "+";
+                if (d.Dict.TLSuffix != null && d.Dict.TLSuffix != "")
+                {
+                    data += d.Dict.TLSuffix;
+                }
+                else
+                {
+                    data += d.Suffix.TLSuffix;
+                }
+                data += Environment.NewLine;
+            }
+
+            System.IO.File.WriteAllText(generateWritePath, data, Encoding.UTF8);
+        }
 
         /// <summary>
         /// Main Translation procedure
@@ -208,9 +288,8 @@ namespace TMT.ViewModel
         {
             writeText();
             iPackage.Convert.extract();
-            Console.WriteLine("Converted");
             extract();
-            Console.WriteLine(changeState);
+            generate();
         }
 
         [DllImport("user32.dll")]
@@ -225,17 +304,45 @@ namespace TMT.ViewModel
             uint KEYEVENTF_KEYUP = 0x0002;
             uint KEYEVENTF_EXTENDEDKEY = 0x0001;
 
-            ChangeState = true;
             keybd_event((byte)0x5B, (byte)0, (uint)KEYEVENTF_EXTENDEDKEY | 0, (UIntPtr) 0);
             keybd_event((byte)0x41, (byte)0, (uint)KEYEVENTF_EXTENDEDKEY | 0, (UIntPtr)0);
             keybd_event((byte)0x5B, 0, KEYEVENTF_EXTENDEDKEY | KEYEVENTF_KEYUP, (UIntPtr)0);
             keybd_event((byte)0x41, 0, KEYEVENTF_EXTENDEDKEY | KEYEVENTF_KEYUP, (UIntPtr)0);
-            /*
-            string[] lines = System.IO.File.ReadAllLines(speechPath);
-            foreach(string line in lines)
-            {
-                Console.WriteLine(line);
-            }*/
+        }
+
+        /// <summary>
+        /// Updates dictionaries field if exists else inserts field into the database
+        /// </summary>
+        public void Update()
+        {
+            MongoDatabase db = MongoDulguun.mongoServer.GetDatabase(MongoDulguun.databaseName);
+            var dbCollection1 = db.GetCollection<Dictionary>("iWords");
+            var dbCollection2 = db.GetCollection<Dictionary>("iSuffixes");
+            foreach(DandS d in dandss){
+                try
+                {
+                    dbCollection1.Save(d.Dict);
+                }
+                catch { }
+                try
+                {
+                    dbCollection2.Save(d.Suffix);
+                }
+                catch { }
+            }
+
+            ChangeState = false;
+            extract();
+            generate();
+        }
+
+        /// <summary>
+        /// Refreshes the dictionaries
+        /// </summary>
+        public void Decline()
+        {
+            extract();
+            ChangeState = false;
         }
 
         #region INotifyPropertyChanged Members

@@ -8,21 +8,25 @@ using System.Windows.Data;
 
 namespace TMT
 {
-    class BoolToVisConverter: IValueConverter
+    class SuffixToStringConverter : IValueConverter
     {
 
         public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
+            string returnValue = "";
+
             if (value != null)
             {
-                if (((bool)value) == true)
-                    return Visibility.Visible;
-                else
-                    return Visibility.Collapsed;
+                List<string> suffixes = (List<string>) value;
+                foreach(string suffix in suffixes)
+                {
+                    returnValue += suffix + "+";
+                }
+                return returnValue;
             }
             else
             {
-                return Visibility.Collapsed;
+                return returnValue;
             }
         }
 

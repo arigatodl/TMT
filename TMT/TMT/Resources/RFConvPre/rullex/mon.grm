@@ -1,0 +1,12 @@
+﻿;Mongolian.rul
+;Монгол хэлний үгзүйн шинжүүр програмын дүрэм
+;хамгийн сүүлд 27-Jan-11
+;(C) 2011, МУИС МТС мэдээллийн технологийн тэнхим
+;Адъяацэрэн                    |  e-mail: ayada_toeo@yahoo.com
+
+Rule.
+Word = PARTICLE
+Word = Stem (INFL)
+Stem = Stem SUFFIX
+Stem = ROOT
+End

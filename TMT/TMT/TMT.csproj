@@ -100,11 +100,16 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="BoolToVisConverter.cs" />
+    <Compile Include="Command\AcceptUpdateDBCommand.cs" />
+    <Compile Include="Command\DeclineUpdateDBCommand.cs" />
     <Compile Include="Command\TranslateViaVoiceCommand.cs" />
     <Compile Include="Command\TranslateViaTextCommand.cs" />
-    <Compile Include="IMongoEntity.cs" />
+    <Compile Include="DictionariesToStringConverter.cs" />
+    <Compile Include="Model\DandS.cs" />
+    <Compile Include="Model\SuffixClass.cs" />
+    <Compile Include="MultiToStringConverter.cs" />
+    <Compile Include="SuffixToStringConverter.cs" />
     <Compile Include="MongoDulguun.cs" />
-    <Compile Include="MongoEntity.cs" />
     <Compile Include="ViewModel\MainViewModel.cs" />
     <Compile Include="View\MainWindowView.xaml.cs">
       <DependentUpon>MainWindowView.xaml</DependentUpon>
@@ -164,6 +169,9 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Resources\Capture2Text\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\Decline.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

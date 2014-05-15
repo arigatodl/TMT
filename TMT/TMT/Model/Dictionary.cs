@@ -11,18 +11,14 @@ namespace TMT.Model
     using MongoDB.Driver;
 
     [BsonIgnoreExtraElements]
-    public class Dictionary : MongoEntity, INotifyPropertyChanged
+    public class Dictionary :  INotifyPropertyChanged
     {
-        [BsonElement("TLWordDB")]
         private string tLWord;
-        
-        [BsonElement("SLWordDB")]
+        public ObjectId Id { get; set; }
         private string sLWord;
-
-        [BsonElement("TypeDB")]
         private string type;
-
-        private List<string> suffixes;
+        private string suffix;
+        private string tLSuffix;
 
         /// <summary>
         /// Parameterized Constructer
@@ -31,12 +27,13 @@ namespace TMT.Model
         /// <param name="arg1">Target Language Word</param>
         /// <param name="arg2">Type</param>
         /// <param name="arg3">Suffix</param>
-        public Dictionary(String arg0, String arg1, String arg2, List<String> arg3)
+        public Dictionary(String arg0, String arg1, String arg2, String arg3)
         {
             SLWord = arg0;
             TLWord = arg1;
             Type = arg2;
-            Suffixes = arg3;
+            Suffix = arg3;
+            TLSuffix = "";
         }
         
         /// <summary>
@@ -52,6 +49,29 @@ namespace TMT.Model
             {
                 sLWord = value;
                 OnPropertyChanged("SLWord");
+            }
+        }
+
+        /// <summary>
+        /// Gets TLSuffix of the word
+        /// </summary>
+        public string TLSuffix
+        {
+            get
+            {
+                return tLSuffix;
+            }
+            set
+            {
+                if (tLSuffix == null)
+                {
+                    tLSuffix = value;
+                }
+                else
+                {
+                    tLSuffix = value;
+                    OnPropertyChanged("TLSuffix");
+                }
             }
         }
 
@@ -102,16 +122,16 @@ namespace TMT.Model
         /// Gets or sets the Suffix of the word
         /// Ex. Fut, Aor, Loc, ...
         /// </summary>
-        public List<String> Suffixes
+        public string Suffix
         {
             get
             {
-                return suffixes;
+                return suffix;
             }
             set
             {
-                suffixes = value;
-                OnPropertyChanged("Suffixes");
+                suffix = value;
+                OnPropertyChanged("Suffix");
             }
         }
 
