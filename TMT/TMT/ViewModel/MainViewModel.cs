@@ -20,6 +20,11 @@ namespace TMT.ViewModel
     using System.Windows.Media;
     using System.Runtime.InteropServices;
     using System.Linq;
+    using System.Threading;
+    using Microsoft.Win32;
+    using System.Speech.Recognition;
+    using System.Globalization;
+    using System.Speech.Synthesis;
 
     class MainViewModel:INotifyPropertyChanged
     {
@@ -279,6 +284,16 @@ namespace TMT.ViewModel
             }
 
             System.IO.File.WriteAllText(generateWritePath, data, Encoding.UTF8);
+
+            ProcessStartInfo startInfo = new ProcessStartInfo();
+            startInfo.FileName = @"C:\Users\Dulguun\Documents\GitHub\TMT\TMT\TMT\Resources\RFConvPre\uKimmo.exe";
+            startInfo.Arguments = @"C:\Users\Dulguun\Documents\GitHub\TMT\TMT\TMT\Resources\RFConvPre\mon.rul C:\Users\Dulguun\Documents\GitHub\TMT\TMT\TMT\Resources\RFConvPre\rulles\mon.lex C:\Users\Dulguun\Documents\GitHub\TMT\TMT\TMT\Resources\RFConvPre\iGen.txt C:\Users\Dulguun\Documents\GitHub\TMT\TMT\TMT\Resources\RFConvPre\iRec.txt";
+            Process.Start(startInfo);
+           // }
+           // catch
+           // {
+           //  throw new Exception("Error");
+           // }
         }
 
         /// <summary>
@@ -308,6 +323,25 @@ namespace TMT.ViewModel
             keybd_event((byte)0x41, (byte)0, (uint)KEYEVENTF_EXTENDEDKEY | 0, (UIntPtr)0);
             keybd_event((byte)0x5B, 0, KEYEVENTF_EXTENDEDKEY | KEYEVENTF_KEYUP, (UIntPtr)0);
             keybd_event((byte)0x41, 0, KEYEVENTF_EXTENDEDKEY | KEYEVENTF_KEYUP, (UIntPtr)0);
+
+                //var sp = new SpeechRecognitionEngine(new CultureInfo("mn-MN"));
+                SpeechSynthesizer synthesizer = new SpeechSynthesizer();
+                synthesizer.Volume = 100;  // 0...100
+                synthesizer.Rate = -2;     // -10...10
+                synthesizer.SelectVoice("MN MALE TTSVoice");
+                foreach (InstalledVoice voice in synthesizer.GetInstalledVoices())
+                {
+                    VoiceInfo info = voice.VoiceInfo;
+
+                    Console.WriteLine(" Name:          " + info.Name);
+                    Console.WriteLine(" Culture:       " + info.Culture);
+                    Console.WriteLine(" Age:           " + info.Age);
+                    Console.WriteLine(" Gender:        " + info.Gender);
+                    Console.WriteLine(" Description:   " + info.Description);
+                    Console.WriteLine(" ID:            " + info.Id);
+                }
+                // Synchronous
+                //synthesizer.Speak("Сайн байна уу?");
         }
 
         /// <summary>
