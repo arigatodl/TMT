@@ -324,24 +324,12 @@ namespace TMT.ViewModel
             keybd_event((byte)0x5B, 0, KEYEVENTF_EXTENDEDKEY | KEYEVENTF_KEYUP, (UIntPtr)0);
             keybd_event((byte)0x41, 0, KEYEVENTF_EXTENDEDKEY | KEYEVENTF_KEYUP, (UIntPtr)0);
 
-                //var sp = new SpeechRecognitionEngine(new CultureInfo("mn-MN"));
                 SpeechSynthesizer synthesizer = new SpeechSynthesizer();
                 synthesizer.Volume = 100;  // 0...100
                 synthesizer.Rate = -2;     // -10...10
                 synthesizer.SelectVoice("MN MALE TTSVoice");
-                foreach (InstalledVoice voice in synthesizer.GetInstalledVoices())
-                {
-                    VoiceInfo info = voice.VoiceInfo;
-
-                    Console.WriteLine(" Name:          " + info.Name);
-                    Console.WriteLine(" Culture:       " + info.Culture);
-                    Console.WriteLine(" Age:           " + info.Age);
-                    Console.WriteLine(" Gender:        " + info.Gender);
-                    Console.WriteLine(" Description:   " + info.Description);
-                    Console.WriteLine(" ID:            " + info.Id);
-                }
-                // Synchronous
-                //synthesizer.Speak("Сайн байна уу?");
+                
+                synthesizer.Speak("Сайн байна уу?");
         }
 
         /// <summary>
