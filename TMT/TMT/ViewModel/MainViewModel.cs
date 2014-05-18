@@ -25,12 +25,18 @@ namespace TMT.ViewModel
     using System.Speech.Recognition;
     using System.Globalization;
     using System.Speech.Synthesis;
+    using System.IO;
 
     class MainViewModel:INotifyPropertyChanged
     {
         private string data;
         private Boolean changeState;
         private ObservableCollection<DandS> dandss;
+        private Boolean isLoading;
+
+        // Checkers
+        private Boolean isException;
+
         const string readPath = "C:\\Users\\Public\\iTranslator\\outputText.txt";
         const string writePath = "C:\\Users\\Public\\iTranslator\\inputText.txt";
         const string speechPath = "..\\..\\Resources\\Capture2Text\\Output\\speech_to_text.txt";
@@ -44,6 +50,7 @@ namespace TMT.ViewModel
         public MainViewModel()
         {
             dandss = new ObservableCollection<DandS>();
+            IsLoading = false;
 
             dandss.CollectionChanged += dandss_CollectionChanged;
             TranslateViaText = new TranslateViaTextCommand(this);
@@ -54,7 +61,32 @@ namespace TMT.ViewModel
 
         void dandss_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
-            ChangeState = true;
+            if (e.Action == NotifyCollectionChangedAction.Remove)
+            {
+                foreach (DandS item in e.OldItems)
+                {
+                    item.Dict.PropertyChanged -= EntityViewModelPropertyChanged;
+                    item.Suffix.PropertyChanged -= EntityViewModelPropertyChanged;
+                }
+            }
+            else if (e.Action == NotifyCollectionChangedAction.Add)
+            {
+                Console.WriteLine("Dandss");
+                foreach (DandS item in e.NewItems)
+                {
+                    item.Dict.PropertyChanged += EntityViewModelPropertyChanged;
+                    item.Suffix.PropertyChanged += EntityViewModelPropertyChanged;
+                }
+            }
+        }
+
+        private void EntityViewModelPropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName.Equals("TLSuffix") || e.PropertyName.Equals("TLWord"))
+            {
+                if (isException) return; 
+                ChangeState = true;
+            }
         }
 
         /// <summary>
@@ -96,6 +128,19 @@ namespace TMT.ViewModel
             get
             {
                 return dandss;
+            }
+        }
+
+        public Boolean IsLoading
+        {
+            get
+            {
+                return isLoading;
+            }
+            set
+            {
+                isLoading = value;
+                OnPropertyChanged("IsLoading");
             }
         }
 
@@ -157,11 +202,15 @@ namespace TMT.ViewModel
 
                 dandss.Clear();
                 changeState = false;
+                isException = true;
 
                 string[] lines = System.IO.File.ReadAllLines(readPath);
 
+                int count = 0;
                 foreach (string line in lines)
                 {
+                    count++;
+                    if (count <= 3) continue;   // Skipping UTF8 file characters
                     SLWord = line.Split(';')[0];
                     Type = line.Split(';')[1];
 
@@ -259,6 +308,7 @@ namespace TMT.ViewModel
                         }
                     }
                 }
+                isException = false;
             }
             catch
             {
@@ -266,6 +316,9 @@ namespace TMT.ViewModel
             }
         }
 
+        /// <summary>
+        /// Generates the words from the RFConv
+        /// </summary>
         public void generate()
         {
             string data = "";
@@ -285,15 +338,35 @@ namespace TMT.ViewModel
 
             System.IO.File.WriteAllText(generateWritePath, data, Encoding.UTF8);
 
-            ProcessStartInfo startInfo = new ProcessStartInfo();
-            startInfo.FileName = @"C:\Users\Dulguun\Documents\GitHub\TMT\TMT\TMT\Resources\RFConvPre\uKimmo.exe";
-            startInfo.Arguments = @"C:\Users\Dulguun\Documents\GitHub\TMT\TMT\TMT\Resources\RFConvPre\mon.rul C:\Users\Dulguun\Documents\GitHub\TMT\TMT\TMT\Resources\RFConvPre\rulles\mon.lex C:\Users\Dulguun\Documents\GitHub\TMT\TMT\TMT\Resources\RFConvPre\iGen.txt C:\Users\Dulguun\Documents\GitHub\TMT\TMT\TMT\Resources\RFConvPre\iRec.txt";
-            Process.Start(startInfo);
-           // }
-           // catch
-           // {
-           //  throw new Exception("Error");
-           // }
+            string fullPath = "..\\..\\Resources\\RFConvPre\\uKimmo.exe";
+            ProcessStartInfo psi = new ProcessStartInfo();
+            psi.FileName = Path.GetFileName(fullPath);
+            psi.WorkingDirectory = Path.GetDirectoryName(fullPath);
+            psi.Arguments = "mon.rul rullex/mon.lex iGen.txt iRec.txt";
+            psi.CreateNoWindow = true;
+            psi.WindowStyle = ProcessWindowStyle.Hidden;
+            Process.Start(psi);
+
+            string[] lines = System.IO.File.ReadAllLines(generateReadPath);
+
+            int i = 0;
+            foreach(string line in lines){
+                if (line == "")
+                {
+                    dandss[i].TranslationWord = data;
+                    i++;
+                }
+                else data = line;
+            }
+        }
+
+        public void ConvertThread()
+        {
+            writeText();
+            iPackage.Convert.extract();
+            extract();
+            generate();
+            IsLoading = false;
         }
 
         /// <summary>
@@ -301,10 +374,9 @@ namespace TMT.ViewModel
         /// </summary>
         public void SeperateText()
         {
-            writeText();
-            iPackage.Convert.extract();
-            extract();
-            generate();
+            IsLoading = true;
+            Thread test = new Thread(new ThreadStart(ConvertThread));
+            test.Start();
         }
 
         [DllImport("user32.dll")]
@@ -316,7 +388,9 @@ namespace TMT.ViewModel
         /// </summary>
         public void Listen()
         {
-            uint KEYEVENTF_KEYUP = 0x0002;
+            IsLoading = true;
+
+            /*uint KEYEVENTF_KEYUP = 0x0002;
             uint KEYEVENTF_EXTENDEDKEY = 0x0001;
 
             keybd_event((byte)0x5B, (byte)0, (uint)KEYEVENTF_EXTENDEDKEY | 0, (UIntPtr) 0);
@@ -329,7 +403,7 @@ namespace TMT.ViewModel
                 synthesizer.Rate = -2;     // -10...10
                 synthesizer.SelectVoice("MN MALE TTSVoice");
                 
-                synthesizer.Speak("Сайн байна уу?");
+                synthesizer.Speak("Сайн байна уу?");*/
         }
 
         /// <summary>
@@ -337,6 +411,7 @@ namespace TMT.ViewModel
         /// </summary>
         public void Update()
         {
+            isException = false;
             MongoDatabase db = MongoDulguun.mongoServer.GetDatabase(MongoDulguun.databaseName);
             var dbCollection1 = db.GetCollection<Dictionary>("iWords");
             var dbCollection2 = db.GetCollection<Dictionary>("iSuffixes");
@@ -353,7 +428,6 @@ namespace TMT.ViewModel
                 catch { }
             }
 
-            ChangeState = false;
             extract();
             generate();
         }
@@ -364,7 +438,6 @@ namespace TMT.ViewModel
         public void Decline()
         {
             extract();
-            ChangeState = false;
         }
 
         #region INotifyPropertyChanged Members

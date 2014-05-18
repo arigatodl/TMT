@@ -63,15 +63,8 @@ namespace TMT.Model
             }
             set
             {
-                if (tLSuffix == null)
-                {
-                    tLSuffix = value;
-                }
-                else
-                {
-                    tLSuffix = value;
-                    OnPropertyChanged("TLSuffix");
-                }
+                tLSuffix = value;
+                OnPropertyChanged("TLSuffix");
             }
         }
 
@@ -87,16 +80,8 @@ namespace TMT.Model
             }
             set
             {
-                if (tLWord == null || tLWord == "")
-                {
-                    tLWord = value;
-                }
-                else
-                {
-                    tLWord = value;
-                    OnPropertyChanged("TLWord");
-                }
-                
+                tLWord = value;
+                OnPropertyChanged("TLWord");
             }
         }
 

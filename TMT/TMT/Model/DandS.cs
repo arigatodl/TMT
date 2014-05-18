@@ -11,6 +11,7 @@ namespace TMT.Model
     {
         private Dictionary dict;
         private SuffixClass suffix;
+        private String translationWord; 
 
         /// <summary>
         /// Parameterized constructor
@@ -23,6 +24,9 @@ namespace TMT.Model
             suffix = arg1;
         }
 
+        /// <summary>
+        /// Gets and sets the dict
+        /// </summary>
         public Dictionary Dict
         {
             get
@@ -36,6 +40,9 @@ namespace TMT.Model
             }
         }
 
+        /// <summary>
+        /// Gets and sets the suffix
+        /// </summary>
         public SuffixClass Suffix
         {
             get
@@ -46,6 +53,19 @@ namespace TMT.Model
             {
                 suffix = value;
                 OnPropertyChanged("Suffix");
+            }
+        }
+
+        public String TranslationWord
+        {
+            get
+            {
+                return translationWord;
+            }
+            set
+            {
+                translationWord = value;
+                OnPropertyChanged("TranslationWord");
             }
         }
 
