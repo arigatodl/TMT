@@ -81,7 +81,7 @@
     </Reference>
     <Reference Include="TurkishExtractor, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\..\Desktop\ikvm-7.2.4630.5\bin\TurkishExtractor.dll</HintPath>
+      <HintPath>ReferenceFiles\TurkishExtractor.dll</HintPath>
     </Reference>
     <Reference Include="WindowsBase" />
     <Reference Include="PresentationCore" />
@@ -92,6 +92,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="ViewModel\TMDictionaryViewModel.cs" />
+    <Compile Include="View\TMDictionaryView.xaml.cs">
+      <DependentUpon>TMDictionaryView.xaml</DependentUpon>
+    </Compile>
     <Page Include="Control\Block.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -108,8 +112,10 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="AsyncObservableCollection.cs" />
     <Compile Include="BoolToVisConverter.cs" />
     <Compile Include="Command\AcceptUpdateDBCommand.cs" />
+    <Compile Include="Command\ShowDetailsCommand.cs" />
     <Compile Include="Command\DeclineUpdateDBCommand.cs" />
     <Compile Include="Command\TranslateViaVoiceCommand.cs" />
     <Compile Include="Command\TranslateViaTextCommand.cs" />
@@ -126,6 +132,10 @@
       <DependentUpon>MainWindowView.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="View\TMDictionaryView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Model\Dictionary.cs" />
@@ -178,9 +188,14 @@
   <ItemGroup>
     <Resource Include="Resources\Accept.png" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Resource Include="Resources\Translate.png" />
+  </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\Decline.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\Dictionary.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

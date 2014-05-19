@@ -49,7 +49,7 @@ namespace TMT.ViewModel
 
         public MainViewModel()
         {
-            dandss = new ObservableCollection<DandS>();
+            dandss = new AsyncObservableCollection<DandS>();
             IsLoading = false;
 
             dandss.CollectionChanged += dandss_CollectionChanged;
@@ -59,6 +59,11 @@ namespace TMT.ViewModel
             CancelUpdateDB = new DeclineUpdateDBCommand(this);
         }
 
+        /// <summary>
+        /// Adds event handlers to Dands objects
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         void dandss_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
             if (e.Action == NotifyCollectionChangedAction.Remove)
@@ -71,7 +76,6 @@ namespace TMT.ViewModel
             }
             else if (e.Action == NotifyCollectionChangedAction.Add)
             {
-                Console.WriteLine("Dandss");
                 foreach (DandS item in e.NewItems)
                 {
                     item.Dict.PropertyChanged += EntityViewModelPropertyChanged;
@@ -80,6 +84,11 @@ namespace TMT.ViewModel
             }
         }
 
+        /// <summary>
+        /// Notifies if TLSuffix or TLWord is changed
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void EntityViewModelPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             if (e.PropertyName.Equals("TLSuffix") || e.PropertyName.Equals("TLWord"))
@@ -131,6 +140,9 @@ namespace TMT.ViewModel
             }
         }
 
+        /// <summary>
+        /// Gets or sets isLoading
+        /// </summary>
         public Boolean IsLoading
         {
             get
@@ -180,6 +192,7 @@ namespace TMT.ViewModel
             get;
             private set;
         }
+
         #endregion
 
         /// <summary>
@@ -195,8 +208,6 @@ namespace TMT.ViewModel
         /// </summary>
         public void extract()
         {
-            try
-            {
                 MongoDatabase db = MongoDulguun.mongoServer.GetDatabase(MongoDulguun.databaseName);
                 IMongoQuery query;
 
@@ -204,15 +215,16 @@ namespace TMT.ViewModel
                 changeState = false;
                 isException = true;
 
-                string[] lines = System.IO.File.ReadAllLines(readPath);
+                string[] lines = System.IO.File.ReadAllLines(readPath,Encoding.UTF8);
 
                 int count = 0;
                 foreach (string line in lines)
                 {
                     count++;
-                    if (count <= 3) continue;   // Skipping UTF8 file characters
+                    if (count <= 1) continue;   // Skipping UTF8 file characters
                     SLWord = line.Split(';')[0];
                     Type = line.Split(';')[1];
+                    Suffix = "";
 
                     if (line.Split(';').Length > 3)
                     {
@@ -221,7 +233,7 @@ namespace TMT.ViewModel
                         {
                             temp = suffix;
                             if (suffix.EndsWith(")")) { temp = suffix.Remove(suffix.Length - 1); }
-                            if(!temp.Equals("Nom") && !temp.Equals("P3sg")) Suffix = temp;
+                            if (!temp.Equals("Nom") && !temp.Equals("P3sg") && !temp.Equals("Pnon") && !temp.Equals("A2sg")) Suffix = temp;
                         }
                     }
 
@@ -250,6 +262,7 @@ namespace TMT.ViewModel
                     if (tempSuffixClass == null) tempSuffixClass = new SuffixClass(Suffix, "");
                     if (tempDictionary == null) tempDictionary = new Dictionary(SLWord, "", Type, Suffix);
                     dandss.Add(new DandS(tempDictionary, tempSuffixClass));
+                    Console.WriteLine(SLWord + ":" + count);
                 }
 
                 var dbCollection1 = db.GetCollection<Dictionary>("skipTypes");
@@ -265,9 +278,12 @@ namespace TMT.ViewModel
                     if (filteredCollection1 != null)
                     {
                         d.Dict.TLWord = d.Dict.SLWord;
+                        d.TranslationWord = d.Dict.SLWord;
+                        d.SkipTranslation = true;
                     }
                     else
                     {
+                        d.SkipTranslation = false;
                         query = Query.And(
                                     Query.Matches("SLWord", d.Dict.SLWord),
                                     Query.Matches("Type", d.Dict.Type),
@@ -278,7 +294,12 @@ namespace TMT.ViewModel
                         if (filteredCollection2 != null)
                         {
                             d.Dict.Id = filteredCollection2.Id;
-                            d.Dict.TLWord = (filteredCollection2.TLWord);
+                            d.Dict.TLWord = filteredCollection2.TLWord;
+                            if (d.Dict.TLWord.Contains(' '))
+                            {
+                                d.TranslationWord = d.Dict.TLWord;
+                                d.SkipTranslation = true;
+                            }
 
                             query = Query.And(
                                        Query.Matches("SLWord", d.Dict.SLWord),
@@ -309,11 +330,6 @@ namespace TMT.ViewModel
                     }
                 }
                 isException = false;
-            }
-            catch
-            {
-                Console.WriteLine("Database Error");
-            }
         }
 
         /// <summary>
@@ -345,7 +361,8 @@ namespace TMT.ViewModel
             psi.Arguments = "mon.rul rullex/mon.lex iGen.txt iRec.txt";
             psi.CreateNoWindow = true;
             psi.WindowStyle = ProcessWindowStyle.Hidden;
-            Process.Start(psi);
+            var process = Process.Start(psi);
+            process.WaitForExit();
 
             string[] lines = System.IO.File.ReadAllLines(generateReadPath);
 
@@ -353,20 +370,15 @@ namespace TMT.ViewModel
             foreach(string line in lines){
                 if (line == "")
                 {
-                    dandss[i].TranslationWord = data;
+                    if (dandss[i].SkipTranslation == false)
+                    {
+                        if (data.Equals("*** NONE ***")) dandss[i].TranslationWord = dandss[i].Dict.SLWord;
+                        else dandss[i].TranslationWord = data;
+                    }
                     i++;
                 }
                 else data = line;
             }
-        }
-
-        public void ConvertThread()
-        {
-            writeText();
-            iPackage.Convert.extract();
-            extract();
-            generate();
-            IsLoading = false;
         }
 
         /// <summary>
@@ -375,8 +387,33 @@ namespace TMT.ViewModel
         public void SeperateText()
         {
             IsLoading = true;
-            Thread test = new Thread(new ThreadStart(ConvertThread));
-            test.Start();
+            BackgroundWorker worker = new BackgroundWorker();
+            worker.DoWork += worker_DoWork;
+            worker.RunWorkerCompleted += worker_RunWorkerCompleted;
+            worker.RunWorkerAsync();
+        }
+
+        /// <summary>
+        /// Sets IsLoading = false when worker finishes
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        void worker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+        {
+            IsLoading = false;
+        }
+
+        /// <summary>
+        /// Does heavy jobs on the background
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        void worker_DoWork(object sender, DoWorkEventArgs e)
+        {
+            writeText();
+            iPackage.Convert.extract();
+            extract();
+            generate();
         }
 
         [DllImport("user32.dll")]
@@ -388,8 +425,6 @@ namespace TMT.ViewModel
         /// </summary>
         public void Listen()
         {
-            IsLoading = true;
-
             /*uint KEYEVENTF_KEYUP = 0x0002;
             uint KEYEVENTF_EXTENDEDKEY = 0x0001;
 
@@ -416,16 +451,8 @@ namespace TMT.ViewModel
             var dbCollection1 = db.GetCollection<Dictionary>("iWords");
             var dbCollection2 = db.GetCollection<Dictionary>("iSuffixes");
             foreach(DandS d in dandss){
-                try
-                {
-                    dbCollection1.Save(d.Dict);
-                }
-                catch { }
-                try
-                {
-                    dbCollection2.Save(d.Suffix);
-                }
-                catch { }
+                dbCollection1.Save(d.Dict);
+                dbCollection2.Save(d.Suffix);
             }
 
             extract();
@@ -438,6 +465,7 @@ namespace TMT.ViewModel
         public void Decline()
         {
             extract();
+            generate();
         }
 
         #region INotifyPropertyChanged Members

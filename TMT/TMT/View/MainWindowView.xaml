@@ -3,8 +3,143 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:local="clr-namespace:TMT"
         xmlns:control="clr-namespace:LoadingControl.Control"
-        Title="Турк Монгол орчуулгын систем" Height="350" Width="800">
+        Title="Турк-Монгол орчуулгын систем" Height="350" Width="600" WindowStartupLocation="CenterScreen" Style="{DynamicResource MetroWindowStyle}" MinWidth="600" MinHeight="350">
     
+    <Window.Resources>
+        <Style x:Key="MetroWindowStyle" TargetType="{x:Type Window}">
+            <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.WindowTextBrushKey}}"/>
+            <Setter Property="Background" Value="{DynamicResource {x:Static SystemColors.WindowBrushKey}}"/>
+            <Setter Property="WindowStyle" Value="None" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type Window}">
+                        <Grid>
+                            <Border x:Name="MainBorder" BorderThickness="0" Background="White" >
+                                <DockPanel LastChildFill="True">
+                                    <Border x:Name="PART_TITLEBAR" 
+                                            Margin="0,0,0,0" Height="40" DockPanel.Dock="Top"  
+                                            Background="Transparent" MouseLeftButtonDown="PART_TITLEBAR_MouseLeftButtonDown">
+                                        <DockPanel LastChildFill="False">
+                                            <TextBlock Margin="4,0,0,4" VerticalAlignment="Center" 
+                                                       Foreground="#FFAAAAAA" TextWrapping="NoWrap" 
+                                                       Text="{TemplateBinding Title}" FontSize="16" />
+                                            <Button x:Name="PART_CLOSE" DockPanel.Dock="Right" 
+                                                    VerticalAlignment="Center" Margin="5"
+                                                    Height="20" Width="20" 
+                                                    Style="{DynamicResource MetroWindowButtonStyle}"
+                                                    Click="PART_CLOSE_Click">
+                                                <Path Data="F1M54.0573,47.8776L38.1771,31.9974 54.0547,16.1198C55.7604,14.4141 55.7604,11.6511 54.0573,9.94531 52.3516,8.23962 49.5859,8.23962 47.8802,9.94531L32.0026,25.8229 16.1224,9.94531C14.4167,8.23962 11.6511,8.23962 9.94794,9.94531 8.24219,11.6511 8.24219,14.4141 9.94794,16.1198L25.8255,32 9.94794,47.8776C8.24219,49.5834 8.24219,52.3477 9.94794,54.0534 11.6511,55.7572 14.4167,55.7585 16.1224,54.0534L32.0026,38.1745 47.8802,54.0534C49.5859,55.7585 52.3516,55.7572 54.0573,54.0534 55.7604,52.3477 55.763,49.5834 54.0573,47.8776z" 
+                                                      Stretch="Uniform" Fill="#FFAAAAAA" Width="10" Margin="0,0,0,0" ></Path>
+                                            </Button>
+                                            <Button x:Name="PART_MAXIMIZE_RESTORE" 
+                                                    DockPanel.Dock="Right" Margin="5"
+                                                    HorizontalAlignment="Center" VerticalAlignment="Center" 
+                                                    Height="20" Width="20" Style="{DynamicResource MetroWindowButtonStyle}"
+                                                    Click="PART_MAXIMIZE_RESTORE_Click">
+                                                <Path Data="M4.3685131,23.127279L4.3685131,47.283243 47.117023,47.283243 47.117023,23.127279z M0,10.684L53.755001,10.684 53.755001,51.668001 0,51.668001z M8.5679998,0L58.668022,0 64,0 64,5.6864691 64,45.317999 58.668022,45.317999 58.668022,5.6864691 8.5679998,5.6864691z"
+                                                      Stretch="Uniform" Fill="#FFAAAAAA" Width="10" Margin="0,0,0,0" ></Path>
+                                            </Button>
+                                            <Button x:Name="PART_MINIMIZE" 
+                                                    HorizontalAlignment="Center" 
+                                                    VerticalAlignment="Center" Margin="5"
+                                                    DockPanel.Dock="Right"
+                                                    Height="20" Width="20" Style="{DynamicResource MetroWindowButtonStyle}"
+                                                    Click="PART_MINIMIZE_Click" VerticalContentAlignment="Bottom">
+                                                <Button.Content>
+                                                    <Path Data="M0,20L53.333,20 53.333,8.888 0,8.888z" 
+                                                          Stretch="Uniform" Fill="#FFAAAAAA" Width="10" Margin="0,0,0,5"></Path>
+                                                </Button.Content>
+                                            </Button>
+                                        </DockPanel>
+                                    </Border>
+
+                                    <AdornerDecorator DockPanel.Dock="Bottom">
+                                        <ContentPresenter ContentTemplate="{TemplateBinding ContentTemplate}" Content="{TemplateBinding Content}" ContentStringFormat="{TemplateBinding ContentStringFormat}"/>
+                                    </AdornerDecorator>
+                                </DockPanel>
+                            </Border>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="ResizeMode" Value="CanResizeWithGrip">
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="{x:Type Window}">
+                                <Border BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}">
+                                    <Grid>
+                                        <AdornerDecorator>
+                                            <ContentPresenter ContentTemplate="{TemplateBinding ContentTemplate}" Content="{TemplateBinding Content}" ContentStringFormat="{TemplateBinding ContentStringFormat}"/>
+                                        </AdornerDecorator>
+                                        <ResizeGrip x:Name="WindowResizeGrip" HorizontalAlignment="Right" IsTabStop="False" Visibility="Collapsed" VerticalAlignment="Bottom"/>
+                                    </Grid>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <MultiTrigger>
+                                        <MultiTrigger.Conditions>
+                                            <Condition Property="ResizeMode" Value="CanResizeWithGrip"/>
+                                            <Condition Property="WindowState" Value="Normal"/>
+                                        </MultiTrigger.Conditions>
+                                        <Setter Property="Visibility" TargetName="WindowResizeGrip" Value="Visible"/>
+                                    </MultiTrigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+        <Style x:Key="MetroWindowButtonStyle" TargetType="{x:Type Button}">
+            <Setter Property="FocusVisualStyle">
+                <Setter.Value>
+                    <Style>
+                        <Setter Property="Control.Template">
+                            <Setter.Value>
+                                <ControlTemplate>
+                                    <Rectangle Margin="2" SnapsToDevicePixels="True" Stroke="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}" StrokeThickness="1" StrokeDashArray="1 2"/>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="Background" Value="{x:Null}"/>
+            <Setter Property="BorderBrush" Value="#FF707070"/>
+            <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Padding" Value="1"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type Button}">
+                        <Border x:Name="border" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" SnapsToDevicePixels="True">
+                            <ContentPresenter x:Name="contentPresenter" ContentTemplate="{TemplateBinding ContentTemplate}" Content="{TemplateBinding Content}" ContentStringFormat="{TemplateBinding ContentStringFormat}" Focusable="False" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" Margin="{TemplateBinding Padding}" RecognizesAccessKey="True" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsDefaulted" Value="True">
+                                <Setter Property="BorderBrush" TargetName="border" Value="{DynamicResource {x:Static SystemColors.HighlightBrushKey}}"/>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" TargetName="border" Value="#FFBEE6FD"/>
+                                <Setter Property="BorderBrush" TargetName="border" Value="#FF3C7FB1"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter Property="Background" TargetName="border" Value="#FFC4E5F6"/>
+                                <Setter Property="BorderBrush" TargetName="border" Value="#FF2C628B"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Background" TargetName="border" Value="#FFF4F4F4"/>
+                                <Setter Property="BorderBrush" TargetName="border" Value="#FFADB2B5"/>
+                                <Setter Property="TextElement.Foreground" TargetName="contentPresenter" Value="#FF838383"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
     <Grid>
         <Grid.Resources>
             <local:BoolToVisConverter x:Key="BoolToVisible"/>
@@ -13,7 +148,8 @@
             <local:MultiToStringConverter x:Key="MtoS"/>
             <Image x:Key="Accept" Source="..\Resources\Accept.png"/>
             <Image x:Key="Decline" Source="..\Resources\Decline.png"/>
-            
+            <Image x:Key="Translate" Source="..\Resources\Translate.png"/>
+            <Image x:Key="Dictionary" Source="..\Resources\Dictionary.png"/>
             
             <Storyboard x:Key="FadeIn">
                 <DoubleAnimation 
@@ -23,7 +159,7 @@
             <Storyboard x:Key="FadeOut">
                 <DoubleAnimation 
                     Storyboard.TargetProperty="Opacity" From="1" To="0" 
-                    Duration="0:0:1" BeginTime="0:0:0"/>
+                    Duration="0:0:0.5" BeginTime="0:0:0"/>
             </Storyboard>
 
             <Style TargetType="Button">
@@ -39,10 +175,23 @@
                 </Style.Triggers>
             </Style>
 
+            <Style TargetType="TextBox">
+                <Style.Triggers>
+                    <Trigger Property="Visibility" Value="Visible">
+                        <Trigger.EnterActions>
+                            <BeginStoryboard Storyboard="{StaticResource FadeIn}"/>
+                        </Trigger.EnterActions>
+                        <Trigger.ExitActions>
+                            <BeginStoryboard Storyboard="{StaticResource FadeOut}"/>
+                        </Trigger.ExitActions>
+                    </Trigger>
+                </Style.Triggers>
+            </Style>
+
             <ControlTemplate x:Key="TextBoxBaseControlTemplate" TargetType="{x:Type TextBoxBase}">
                 <Border Background="{TemplateBinding Background}" 
                 x:Name="Bd" BorderBrush="Black"
-                BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="10">
+                BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="5">
                     <ScrollViewer x:Name="PART_ContentHost"/>
                 </Border>
                 <ControlTemplate.Triggers>
@@ -50,27 +199,39 @@
                         <Setter Property="Background" Value="{DynamicResource {x:Static SystemColors.ControlBrushKey}}" TargetName="Bd"/>
                         <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}"/>
                     </Trigger>
-                    <Trigger Property="Width" Value="Auto">
-                        <Setter Property="MinWidth" Value="100"/>
-                    </Trigger>
-                    <Trigger Property="Height" Value="Auto">
-                        <Setter Property="MinHeight" Value="20"/>
-                    </Trigger>
                 </ControlTemplate.Triggers>
             </ControlTemplate>
         </Grid.Resources>
 
         <Grid.RowDefinitions>
-            <RowDefinition Height="0.7*"/>
-            <RowDefinition Height="0.3*"/>
+            <RowDefinition Height="0.1*"/>
+            <RowDefinition Height="60"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="70"/>
             <ColumnDefinition Width="0.5*"/>
             <ColumnDefinition Width="0.5*"/>
         </Grid.ColumnDefinitions>
         
-        <TextBox Text="{Binding Data}"  Grid.Column="0" TextWrapping="wrap" VerticalScrollBarVisibility="auto"/>
-        <Grid Grid.Column="1">
+        <StackPanel Grid.RowSpan="2" Orientation="Vertical">
+            <Border BorderBrush="Black" BorderThickness="1">
+                <StackPanel Orientation="Horizontal" Height="30">
+                    <Button Content="{StaticResource Translate}" BorderBrush="Transparent" Background="Transparent"/>
+                    <Label Content="Орчуулах"/>
+                </StackPanel>
+            </Border>
+            <Border BorderBrush="Black" BorderThickness="1">
+                <StackPanel Orientation="Horizontal" Height="30">
+                    <Button Content="{StaticResource Dictionary}" BorderBrush="Transparent" Background="Transparent"/>
+                    <Label Content="Толь бичиг"/>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+        
+        
+        <TextBox Text="{Binding Data}" Grid.Column="1" TextWrapping="wrap" VerticalScrollBarVisibility="auto"/>
+        <Border Grid.Column="2" BorderThickness="1" BorderBrush="Black" Background="Gray">
+        <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height =" 0.8*"/>
                 <RowDefinition Height =" 0.2*"/>
@@ -89,8 +250,12 @@
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
                             <StackPanel Orientation="Horizontal">
-                                <Label Content="{Binding TranslationWord}"/>
-                                <TextBox Text="{Binding Dict.TLWord}">
+                                <Label Foreground="White" Content="{Binding TranslationWord}">
+                                    <Label.InputBindings>
+                                        <MouseBinding Command="{Binding ShowDetails}" MouseAction="LeftClick"/>
+                                    </Label.InputBindings>
+                                </Label>
+                                <TextBox Foreground="White" Template="{StaticResource TextBoxBaseControlTemplate}" Background="Transparent" Text="{Binding Dict.TLWord}" Visibility="{Binding IsShown,Converter={StaticResource BoolToVisible}}">
                                     <TextBox.ToolTip>
                                         <MultiBinding Converter="{StaticResource MtoS}">
                                             <Binding Path="Dict.SLWord"/>
@@ -98,29 +263,31 @@
                                         </MultiBinding>
                                     </TextBox.ToolTip>
                                 </TextBox>
-                                <Label Content="+" />
-                                <TextBox Text ="{Binding Dict.TLSuffix}" ToolTip="{Binding Dict.Suffix}"/>
-                                <TextBox Text ="{Binding Suffix.TLSuffix}" ToolTip="{Binding Suffix.Suffix}"/>
-                                <Label Content=" " />
+                                <Label Foreground="White" Content="+" Visibility="{Binding IsShown,Converter={StaticResource BoolToVisible}}"/>
+                                <TextBox Template="{StaticResource TextBoxBaseControlTemplate}" Foreground="White" Background="Transparent" Text ="{Binding Dict.TLSuffix}" ToolTip="{Binding Dict.Suffix}" Visibility="{Binding IsShown,Converter={StaticResource BoolToVisible}}"/>
+                                <TextBox Template="{StaticResource TextBoxBaseControlTemplate}" Foreground="White" Background="Transparent" Text ="{Binding Suffix.TLSuffix}" ToolTip="{Binding Suffix.Suffix}" Visibility="{Binding IsShown,Converter={StaticResource BoolToVisible}}"/>
                             </StackPanel>
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
             </ScrollViewer>
-            <Button Background="Transparent" Command="{Binding CancelUpdateDB}" Content="{StaticResource Decline}" Grid.Row ="1" Width ="30" Height = "30" Visibility="{Binding ChangeState, Converter={StaticResource BoolToVisible}}"/>
-            <Button Background="Transparent" Command="{Binding AcceptUpdateDB}" Content="{StaticResource Accept}" Grid.Row ="1" Grid.Column="1" Width ="30" Height = "30" Visibility="{Binding ChangeState, Converter={StaticResource BoolToVisible}}"/>
+            <Button BorderBrush="Transparent" Background="Transparent" Command="{Binding CancelUpdateDB}" Content="{StaticResource Decline}" Grid.Row ="1" Width ="30" Height = "30" Visibility="{Binding ChangeState, Converter={StaticResource BoolToVisible}}"/>
+            <Button BorderBrush="Transparent" Background="Transparent" Command="{Binding AcceptUpdateDB}" Content="{StaticResource Accept}" Grid.Row ="1" Grid.Column="1" Width ="30" Height = "30" Visibility="{Binding ChangeState, Converter={StaticResource BoolToVisible}}"/>
         </Grid>
-        <Grid Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="2">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="0.5*"/>
-                <ColumnDefinition Width="0.5*"/>
-            </Grid.ColumnDefinitions>
-            <Button Background="Transparent" Content="Text" Command="{Binding TranslateViaText}" Grid.Column="0" Width="50" Height="50" HorizontalAlignment="Right" Margin="0 0 50 0"/>
-            <Button Background="Transparent" Content="Voice" Command="{Binding TranslateViaVoice}" Grid.Column="1" Width="50" Height="50" HorizontalAlignment="Left" Margin="50 0 0 0"/>
+        </Border>
+        <Grid Grid.Column="1" Grid.Row="1" Grid.ColumnSpan="2">
+            <Button Background="Transparent" Content="Орчуулах" Command="{Binding TranslateViaText}" Grid.Column="0" Width="60" Height="50" HorizontalAlignment="Center"/>
         </Grid>
         
-        <Border Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="0" Grid.RowSpan="2" Background="Black" Opacity="0.4" Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisible}}">
-            <control:LoadingAnimation HorizontalAlignment="Center" VerticalAlignment="Center"/>
+        <Border Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="0" Grid.RowSpan="2" Background="Black" Opacity="0.4" Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisible}}">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="0.6*"/>
+                    <RowDefinition Height="0.4*"/>
+                </Grid.RowDefinitions>
+                <control:LoadingAnimation Grid.Row="0" HorizontalAlignment="Center" VerticalAlignment="Bottom"/>
+                <TextBox Grid.Row="1" BorderBrush="Transparent" VerticalAlignment="Top" HorizontalAlignment="Center" Background="Transparent" Foreground="White" Height="20" Text="Ачааллаж байна..."></TextBox>
+            </Grid>
         </Border>
     </Grid>
 </Window>
