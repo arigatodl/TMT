@@ -22,6 +22,7 @@ namespace TMT.View
         public MongolianGeneratorView()
         {
             InitializeComponent();
+            DataContext = new TMT.ViewModel.MongolianGeneratorViewModel();
         }
     }
 }

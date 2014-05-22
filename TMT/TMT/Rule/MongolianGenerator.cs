@@ -14,8 +14,7 @@
         private MongolianWord _root;    // Язгуур
         private MongolianWord _resultWord;  // Залгагдсан үг
         private static MongolianGenerator _instance;
-        private List<GeneratorRule> _chosenRules;
-        private List<MongolianWord> _generatedWords;
+        private List<MongolianGeneratorResult> _results;
         private MongolianGenerator() {} // Locking the constructor
 
         /// <summary>
@@ -79,43 +78,38 @@
         }
 
         /// <summary>
-        /// Gets and Sets the _chosenRules
+        /// Gets and Sets the _results
         /// </summary>
-        public List<GeneratorRule> ChosenRules
+        public List<MongolianGeneratorResult> Results
         {
             get
             {
-                return _chosenRules;
+                return _results;
             }
             set
             {
-                _chosenRules = value;
-            }
-        }
-
-        /// <summary>
-        /// Gets and Sets the _generatedWords
-        /// </summary>
-        public List<MongolianWord> GeneratedWords
-        {
-            get
-            {
-                return _generatedWords;
-            }
-            set
-            {
-                _generatedWords = value;
+                _results = value;
             }
         }
 
         /// <summary>
         /// Generates the appended word
         /// </summary>
-        public string Generate()
+        public string Generate(String root, List<String> suffixes)
         {
+            Root = new MongolianWord();
+            Root.Word = root;
+
+            Suffixes = new List<MongolianSuffix>();
+            for (int i = 0; i < suffixes.Count; i++)
+            {
+                MongolianSuffix newSuffix = new MongolianSuffix();
+                newSuffix.Word = suffixes[i];
+                Suffixes.Add(newSuffix);
+            }
+
             MongoCursor<GeneratorRule> ruleTableCursor = Mongo.Instance.Database.GetCollection<GeneratorRule>("GeneratorRuleTable").FindAll();
-            ChosenRules = new List<GeneratorRule>();
-            GeneratedWords = new List<MongolianWord>();
+            Results = new List<MongolianGeneratorResult>();
 
             // Prioritizing the suffixes and reordering the list
             for (int i = 0; i < Suffixes.Count; i++)
@@ -152,6 +146,7 @@
                 }
             }
 
+            // Applying the rules
             ResultWord = Root;
             string begin;
             GeneratorRule chosenRule = null;
@@ -159,6 +154,9 @@
             for (int i = 0; i < Suffixes.Count; i++)
             {
                 begin = "";
+                MongolianGeneratorResult tempResult = new MongolianGeneratorResult();
+                tempResult.Root = ResultWord.Word;
+
                 for(int j = ResultWord.Word.Length - 1; j >= 0; j--)
                 {
                     Boolean exists = false;
@@ -205,6 +203,7 @@
                                     ResultWord.Word += chosenRule.Middle.Word;
                                 }
                                 ResultWord.Word += Suffixes[i].Word;
+                                break;
                             }
                         }
                     }
@@ -215,8 +214,14 @@
                     }
                     begin = ResultWord.Word.Substring(j);
                 }
-                ChosenRules.Add(chosenRule);
-                GeneratedWords.Add(ResultWord);
+                if (chosenRule == null)
+                {
+                    tempResult.Rule = new GeneratorRule();
+                }
+                else tempResult.Rule = chosenRule;
+                tempResult.Result = ResultWord.Word;
+                tempResult.Suffix = Suffixes[i].Word;
+                Results.Add(tempResult);
             }
             return ResultWord.Word;
         }

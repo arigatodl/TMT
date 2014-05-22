@@ -4,15 +4,16 @@
     using System.Collections.Generic;
     using System.ComponentModel;
 
-    class MongolianGenerator : INotifyPropertyChanged
+    class MongolianGeneratorModel : INotifyPropertyChanged
     {
         private List<string> _suffixes;
-        private string _root;
+        private List<TMT.Rule.MongolianGeneratorResult> _results;
+        private string _rawData;
 
         /// <summary>
         /// Default Constructor
         /// </summary>
-        public MongolianGenerator() { }
+        public MongolianGeneratorModel() { }
 
         /// <summary>
         /// Gets and Sets the _suffixes
@@ -31,18 +32,34 @@
         }
 
         /// <summary>
-        /// Gets and Sets the _root
+        /// Gets and Sets the _results
         /// </summary>
-        public string Root
+        public List<TMT.Rule.MongolianGeneratorResult> Results
         {
             get
             {
-                return _root;
+                return _results;
             }
             set
             {
-                _root = value;
-                OnPropertyChanged("Root");
+                _results = value;
+                OnPropertyChanged("Results");
+            }
+        }
+
+        /// <summary>
+        /// Gets and Sets the _rawData
+        /// </summary>
+        public string RawData
+        {
+            get
+            {
+                return _rawData;
+            }
+            set
+            {
+                _rawData = value;
+                OnPropertyChanged("RawData");
             }
         }
 

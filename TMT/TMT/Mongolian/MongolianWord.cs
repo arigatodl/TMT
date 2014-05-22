@@ -22,6 +22,14 @@
         }
 
         /// <summary>
+        /// Copy constructor
+        /// </summary>
+        public MongolianWord(MongolianWord mongolianword)
+        {
+            Word = mongolianword.Word;
+        }
+
+        /// <summary>
         /// Gets and sets the Word
         /// 
         /// Үгийг авах болон тэмдэглэх

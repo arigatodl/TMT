@@ -92,7 +92,9 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="Model\MongolianGenerator.cs" />
+    <Compile Include="Command\GenerateCommand.cs" />
+    <Compile Include="Model\MongolianGeneratorModel.cs" />
+    <Compile Include="Rule\MongolianGeneratorResult.cs" />
     <Compile Include="Mongolian\MongolianSuffix.cs" />
     <Compile Include="Mongolian\MongolianWord.cs" />
     <Compile Include="Mongolian\MongolianLetter.cs" />

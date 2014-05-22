@@ -23,6 +23,23 @@
         public GeneratorRule() { }
 
         /// <summary>
+        /// Copy Constructor
+        /// </summary>
+        public GeneratorRule(GeneratorRule rule) 
+        {
+            this.Id = rule.Id;
+            this.Priority = rule.Priority;
+            this.Name = rule.Name;
+            this.Root = new MongolianWord(rule.Root);
+            this.RootChangePart = new MongolianWord(rule.RootChangePart);
+            this.RootChangeRule = new MongolianWord(rule.RootChangeRule);
+            this.Suffix = new MongolianWord(rule.Suffix);
+            this.SuffixChangePart = new MongolianWord(rule.SuffixChangePart);
+            this.SuffixChangeRule = new MongolianWord(rule.SuffixChangeRule);
+            this.Middle = new MongolianWord(rule.Middle);
+        }
+
+        /// <summary>
         /// Gets and Sets the _priority
         /// </summary>
         public int Priority

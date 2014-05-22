@@ -4,6 +4,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace TMT_UnitTest
 {
     using System.Text;
+    using System.Collections.Generic;
     using TMT.Rule;
     using TMT.Mongolian;
     using TMT;
@@ -23,19 +24,14 @@ namespace TMT_UnitTest
             string[] Tests = System.IO.File.ReadAllLines(filePath, Encoding.UTF8);
             foreach (string Test in Tests)
             {
-                MongolianWord tempMongolianWord = new MongolianWord();
-                tempMongolianWord.Word = Test.Split(' ')[0];
-                m.Root = tempMongolianWord;
-                m.Suffixes = new System.Collections.Generic.List<MongolianSuffix>();
-                Console.Write(m.Root.Word + " ");
+                Console.Write(Test.Split(' ')[0] + " ");
+                List<string> temp = new List<string>();
                 for (int i = 1; i < Test.Split(' ').Length; i++)
                 {
-                    MongolianSuffix tempMongolianSuffix = new MongolianSuffix();
-                    tempMongolianSuffix.Word = Test.Split(' ')[i];
-                    m.Suffixes.Add(tempMongolianSuffix);
-                    Console.Write(m.Suffixes[i - 1].Word + " ");
+                    temp.Add(Test.Split(' ')[i]);
+                    Console.Write(Test.Split(' ')[i] + " ");
                 }
-                m.Generate();
+                m.Generate(Test.Split(' ')[0],temp);
                 Console.WriteLine(m.ResultWord.Word);
             }
         }

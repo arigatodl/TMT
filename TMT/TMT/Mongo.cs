@@ -19,7 +19,11 @@
 
         private static Mongo _instance;
 
-        private Mongo() { } // Locking the constructor
+        private Mongo(string connectionString, string databaseName) // Locking the constructor
+        {
+            ConnectionString = connectionString;
+            DatabaseName = databaseName;
+        } 
 
         /// <summary>
         /// Returns the _instance of the Mongo
@@ -30,7 +34,7 @@
             {
                 if (_instance == null)
                 {
-                    _instance = new Mongo();
+                    _instance = new Mongo("mongodb://localhost", "TMTDB");
                 }
                 return _instance;
             }
