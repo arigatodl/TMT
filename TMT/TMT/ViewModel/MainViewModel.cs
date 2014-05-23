@@ -208,7 +208,6 @@ namespace TMT.ViewModel
         /// </summary>
         public void extract()
         {
-                MongoDatabase db = MongoDulguun.mongoServer.GetDatabase(MongoDulguun.databaseName);
                 IMongoQuery query;
 
                 dandss.Clear();
@@ -265,9 +264,9 @@ namespace TMT.ViewModel
                     Console.WriteLine(SLWord + ":" + count);
                 }
 
-                var dbCollection1 = db.GetCollection<Dictionary>("skipTypes");
-                var dbCollection2 = db.GetCollection<Dictionary>("iWords");
-                var dbCollection3 = db.GetCollection<SuffixClass>("iSuffixes");
+                var dbCollection1 = Mongo.Instance.Database.GetCollection<Dictionary>("skipTypes");
+                var dbCollection2 = Mongo.Instance.Database.GetCollection<Dictionary>("iWords");
+                var dbCollection3 = Mongo.Instance.Database.GetCollection<SuffixClass>("iSuffixes");
 
                 foreach (DandS d in dandss)
                 {
@@ -467,9 +466,8 @@ namespace TMT.ViewModel
         public void Update()
         {
             isException = false;
-            MongoDatabase db = MongoDulguun.mongoServer.GetDatabase(MongoDulguun.databaseName);
-            var dbCollection1 = db.GetCollection<Dictionary>("iWords");
-            var dbCollection2 = db.GetCollection<Dictionary>("iSuffixes");
+            var dbCollection1 = Mongo.Instance.Database.GetCollection<Dictionary>("iWords");
+            var dbCollection2 = Mongo.Instance.Database.GetCollection<Dictionary>("iSuffixes");
             foreach(DandS d in dandss){
                 dbCollection1.Save(d.Dict);
                 dbCollection2.Save(d.Suffix);

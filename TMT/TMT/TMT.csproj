@@ -92,7 +92,19 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Command\GenerateCommand.cs" />
+    <Compile Include="Model\MongolianGeneratorModel.cs" />
+    <Compile Include="Rule\MongolianGeneratorResult.cs" />
+    <Compile Include="Mongolian\MongolianSuffix.cs" />
+    <Compile Include="Mongolian\MongolianWord.cs" />
+    <Compile Include="Mongolian\MongolianLetter.cs" />
+    <Compile Include="Rule\GeneratorRule.cs" />
+    <Compile Include="Rule\MongolianGenerator.cs" />
+    <Compile Include="ViewModel\MongolianGeneratorViewModel.cs" />
     <Compile Include="ViewModel\TMDictionaryViewModel.cs" />
+    <Compile Include="View\MongolianGeneratorView.xaml.cs">
+      <DependentUpon>MongolianGeneratorView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="View\TMDictionaryView.xaml.cs">
       <DependentUpon>TMDictionaryView.xaml</DependentUpon>
     </Compile>
@@ -126,12 +138,16 @@
     <Compile Include="Model\SuffixClass.cs" />
     <Compile Include="MultiToStringConverter.cs" />
     <Compile Include="SuffixToStringConverter.cs" />
-    <Compile Include="MongoDulguun.cs" />
+    <Compile Include="Mongo.cs" />
     <Compile Include="ViewModel\MainViewModel.cs" />
     <Compile Include="View\MainWindowView.xaml.cs">
       <DependentUpon>MainWindowView.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="View\MongolianGeneratorView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="View\TMDictionaryView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
