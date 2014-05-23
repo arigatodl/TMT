@@ -233,7 +233,7 @@ namespace TMT.ViewModel
                         {
                             temp = suffix;
                             if (suffix.EndsWith(")")) { temp = suffix.Remove(suffix.Length - 1); }
-                            if (!temp.Equals("Nom") && !temp.Equals("P3sg") && !temp.Equals("Pnon") && !temp.Equals("A2sg")) Suffix = temp;
+                            if (!temp.Equals("Nom") && !temp.Equals("Pnon") && !temp.Equals("A2sg") && !temp.Equals("A3sg")) Suffix = temp;
                         }
                     }
 
@@ -313,11 +313,22 @@ namespace TMT.ViewModel
                             {
                                 d.Dict.TLSuffix = filteredCollection3.TLSuffix;
                             }
-                        }                        
-                        else
-                        {
-                            d.Dict.TLWord = "???";
                         }
+                        else{
+                            query = Query.And(
+                                    Query.Matches("SLWord", d.Dict.SLWord)
+                                );
+                            var filteredCollection5 = dbCollection2.FindOne(query);
+                            if(filteredCollection5 != null){
+                                d.Dict.Id = filteredCollection5.Id;
+                                d.Dict.TLWord = filteredCollection5.TLWord;
+                            }
+                            else
+                            {
+                                d.Dict.TLWord = "???";
+                            }
+                        }
+                        
                         query = Query.And(
                                        Query.Matches("Suffix", d.Dict.Suffix)
                                     );
@@ -374,6 +385,15 @@ namespace TMT.ViewModel
                     {
                         if (data.Equals("*** NONE ***")) dandss[i].TranslationWord = dandss[i].Dict.SLWord;
                         else dandss[i].TranslationWord = data;
+                        if (dandss[i].Suffix.TLSuffix.Contains(' ') && (dandss[i].Dict.TLSuffix == null || dandss[i].Dict.TLSuffix == ""))
+                        {
+                            dandss[i].TranslationWord += (" " + dandss[i].Suffix.TLSuffix.Split(' ')[1]);
+                        }
+                        if (i + 1 < dandss.Count)
+                        {
+                            Console.WriteLine(dandss[i + 1].TranslationWord + ":" + dandss[i].TranslationWord);
+                            if (dandss[i + 1].Dict.SLWord == "?") dandss[i].TranslationWord += " вэ";
+                        }
                     }
                     i++;
                 }
