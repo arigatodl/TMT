@@ -3,8 +3,9 @@
     using System;
     using TMT.Mongolian;
     using MongoDB.Bson;
+    using System.ComponentModel;
 
-    public class GeneratorRule
+    public class GeneratorRule: INotifyPropertyChanged
     {
         public ObjectId Id { get; set; }
         private int _priority;
@@ -20,7 +21,19 @@
         /// <summary>
         /// Default Constructor
         /// </summary>
-        public GeneratorRule() { }
+        public GeneratorRule() 
+        {
+            Id = ObjectId.GenerateNewId();
+            Root = new MongolianWord();
+            RootChangePart = new MongolianWord();
+            RootChangeRule = new MongolianWord();
+            Suffix = new MongolianWord();
+            SuffixChangePart = new MongolianWord();
+            SuffixChangeRule = new MongolianWord();
+            Middle = new MongolianWord();
+            Priority = -1;
+            Name = "Нэргүй";
+        }
 
         /// <summary>
         /// Copy Constructor
@@ -51,6 +64,7 @@
             set
             {
                 _priority = value;
+                OnPropertyChanged("Priority");
             }
         }
 
@@ -66,6 +80,7 @@
             set
             {
                 _name = value;
+                OnPropertyChanged("Name");
             }
         }
 
@@ -81,6 +96,7 @@
             set
             {
                 _root = value;
+                OnPropertyChanged("Root");
             }
         }
 
@@ -96,6 +112,7 @@
             set
             {
                 _rootChangePart = value;
+                OnPropertyChanged("RootChangePart");
             }
         }
 
@@ -111,6 +128,7 @@
             set
             {
                 _rootChangeRule = value;
+                OnPropertyChanged("RootChangeRule");
             }
         }
 
@@ -126,6 +144,7 @@
             set
             {
                 _suffix = value;
+                OnPropertyChanged("Suffix");
             }
         }
 
@@ -141,6 +160,7 @@
             set
             {
                 _suffixChangePart = value;
+                OnPropertyChanged("SuffixChangePart");
             }
         }
 
@@ -156,6 +176,7 @@
             set
             {
                 _suffixChangeRule = value;
+                OnPropertyChanged("SuffixChangeRule");
             }
         }
 
@@ -171,7 +192,24 @@
             set
             {
                 _middle = value;
+                OnPropertyChanged("Middle");
             }
         }
+
+        #region INotifyPropertyChanged Members
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        private void OnPropertyChanged(string propertyName)
+        {
+            PropertyChangedEventHandler handler = PropertyChanged;
+
+            if (handler != null)
+            {
+                handler(this, new PropertyChangedEventArgs(propertyName));
+            }
+        }
+
+        #endregion
     }
 }

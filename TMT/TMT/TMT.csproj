@@ -92,6 +92,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Command\SaveRuleCommand.cs" />
     <Compile Include="Command\GenerateCommand.cs" />
     <Compile Include="Model\MongolianGeneratorModel.cs" />
     <Compile Include="Rule\MongolianGeneratorResult.cs" />

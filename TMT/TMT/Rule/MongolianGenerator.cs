@@ -4,11 +4,12 @@
     using System.Collections.Generic;
     using MongoDB.Driver;
     using TMT.Mongolian;
+    using System.ComponentModel;
 
     /// <summary>
     /// Singleton class
     /// </summary>
-    public class MongolianGenerator
+    public class MongolianGenerator: INotifyPropertyChanged
     {
         private List<MongolianSuffix> _suffixes;  // Нөхцөл|Дагавар
         private MongolianWord _root;    // Язгуур
@@ -44,6 +45,7 @@
             set
             {
                 _suffixes = value;
+                OnPropertyChanged("Suffixes");
             }
         }
 
@@ -59,6 +61,7 @@
             set
             {
                 _root = value;
+                OnPropertyChanged("Root");
             }
         }
 
@@ -74,6 +77,7 @@
             set
             {
                 _resultWord = value;
+                OnPropertyChanged("ResultWord");
             }
         }
 
@@ -89,6 +93,7 @@
             set
             {
                 _results = value;
+                OnPropertyChanged("Results");
             }
         }
 
@@ -148,18 +153,20 @@
 
             // Applying the rules
             ResultWord = Root;
-            string begin;
+            string begin = "";
             GeneratorRule chosenRule = null;
 
             for (int i = 0; i < Suffixes.Count; i++)
             {
-                begin = "";
                 MongolianGeneratorResult tempResult = new MongolianGeneratorResult();
                 tempResult.Root = ResultWord.Word;
-
+                tempResult.Suffix = Suffixes[i].Word;
+                Boolean exists = false;
+                chosenRule = null;
                 for(int j = ResultWord.Word.Length - 1; j >= 0; j--)
                 {
-                    Boolean exists = false;
+                    begin = ResultWord.Word.Substring(j); 
+                    exists = false;
                     foreach (var rule in ruleTableCursor)
                     {
                         if(rule.Root.Word.EndsWith(begin) && rule.Suffix.Word.StartsWith(Suffixes[i].Word.Substring(0,1)))
@@ -169,61 +176,81 @@
                             break;
                         }
                     }
-
-                    if (exists == false && chosenRule != null)
+                    if (exists == false)
                     {
-                        for (int k = 1; k < Suffixes[i].Word.Length; k++)
-                        {
-                            exists = false;
-                            foreach (var rule in ruleTableCursor)
-                            {
-                                if (rule.Root.Word.EndsWith(begin) && rule.Suffix.Word.StartsWith(Suffixes[i].Word.Substring(0, k + 1)))
-                                {
-                                    exists = true;
-                                    chosenRule = rule;
-                                    break;
-                                }
-                            }
+                        begin = ResultWord.Word.Substring(j - 1);
+                        break;
+                    }
+                }
 
-                            if (exists == false)
+                if (chosenRule != null)
+                {
+                    for (int k = 0; k < Suffixes[i].Word.Length; k++)
+                    {
+                        exists = false;
+                        foreach (var rule in ruleTableCursor)
+                        {
+                            if (rule.Root.Word.EndsWith(begin) && rule.Suffix.Word.StartsWith(Suffixes[i].Word.Substring(0, k+1)))
                             {
-                                // Язгуурын төгсгөл солих
-                                if (chosenRule.RootChangePart != null && chosenRule.RootChangePart.Word.Length > 0)
-                                {
-                                    if (chosenRule.RootChangeRule != null && chosenRule.RootChangeRule.Word.Length > 0) ResultWord.Word = ResultWord.Word.Replace(chosenRule.RootChangePart.Word, chosenRule.RootChangeRule.Word);
-                                }
-                                // Нөхцөл|Дагаварын эхлэл солих
-                                if (chosenRule.SuffixChangePart != null && chosenRule.SuffixChangePart.Word.Length > 0)
-                                {
-                                    if (chosenRule.SuffixChangeRule != null && chosenRule.RootChangeRule.Word.Length > 0) Suffixes[i].Word = Suffixes[i].Word.Replace(chosenRule.SuffixChangePart.Word, chosenRule.SuffixChangeRule.Word);
-                                }
-                                // Жийрэглэх
-                                if (chosenRule.Middle != null && chosenRule.Middle.Word.Length > 0)
-                                {
-                                    ResultWord.Word += chosenRule.Middle.Word;
-                                }
-                                ResultWord.Word += Suffixes[i].Word;
+                                exists = true;
+                                chosenRule = rule;
                                 break;
                             }
                         }
+
+                        if (exists == false)
+                        {
+                            // Язгуурын төгсгөл солих
+                            if (chosenRule.RootChangePart != null && chosenRule.RootChangePart.Word != null && chosenRule.RootChangePart.Word.Length > 0)
+                            {
+                                if (chosenRule.RootChangeRule != null && chosenRule.RootChangeRule.Word.Length > 0) ResultWord.Word = ResultWord.Word.Replace(chosenRule.RootChangePart.Word, chosenRule.RootChangeRule.Word);
+                            }
+                            // Нөхцөл|Дагаварын эхлэл солих
+                            if (chosenRule.SuffixChangePart != null && chosenRule.SuffixChangePart.Word != null && chosenRule.SuffixChangePart.Word.Length > 0)
+                            {
+                                if (chosenRule.SuffixChangeRule != null && chosenRule.SuffixChangeRule.Word != null && chosenRule.SuffixChangeRule.Word.Length > 0) Suffixes[i].Word = Suffixes[i].Word.Replace(chosenRule.SuffixChangePart.Word, chosenRule.SuffixChangeRule.Word);
+                            }
+                            // Жийрэглэх
+                            if (chosenRule.Middle != null && chosenRule.Middle.Word != null && chosenRule.Middle.Word.Length > 0)
+                            {
+                                ResultWord.Word += chosenRule.Middle.Word;
+                            }
+                            ResultWord.Word += Suffixes[i].Word;
+                            break;
+                        }
                     }
-                    else
-                    {
-                        ResultWord.Word += Suffixes[i].Word;
-                        break;
-                    }
-                    begin = ResultWord.Word.Substring(j);
                 }
+                else
+                {
+                   ResultWord.Word += Suffixes[i].Word;
+                }
+
                 if (chosenRule == null)
                 {
                     tempResult.Rule = new GeneratorRule();
                 }
                 else tempResult.Rule = chosenRule;
                 tempResult.Result = ResultWord.Word;
-                tempResult.Suffix = Suffixes[i].Word;
                 Results.Add(tempResult);
+                Console.WriteLine(i);
             }
             return ResultWord.Word;
         }
+
+        #region INotifyPropertyChanged Members
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        private void OnPropertyChanged(string propertyName)
+        {
+            PropertyChangedEventHandler handler = PropertyChanged;
+
+            if (handler != null)
+            {
+                handler(this, new PropertyChangedEventArgs(propertyName));
+            }
+        }
+
+        #endregion
     }
 }

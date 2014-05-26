@@ -347,7 +347,7 @@ namespace TMT.ViewModel
         /// </summary>
         public void generate()
         {
-            string data = "";
+            /*string data = "";
             foreach(DandS d in dandss)
             {
                 data += d.Dict.TLWord + "+";
@@ -397,6 +397,22 @@ namespace TMT.ViewModel
                     i++;
                 }
                 else data = line;
+            }*/
+
+            List<string> data = new List<string>();
+
+            foreach(DandS d in dandss)
+            {
+                if (d.Dict.TLSuffix != null && d.Dict.TLSuffix != "")
+                {
+                    data.Add(d.Dict.TLSuffix);
+                }
+                else
+                {
+                    data.Add(d.Suffix.TLSuffix);
+                }
+
+                d.TranslationWord = TMT.Rule.MongolianGenerator.Instance.Generate(d.Dict.TLWord, data);
             }
         }
 

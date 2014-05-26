@@ -1,8 +1,9 @@
 ﻿namespace TMT.Mongolian
 {
     using System;
+    using System.ComponentModel;
 
-    public class MongolianWord
+    public class MongolianWord: INotifyPropertyChanged
     {
         public enum gender
         {
@@ -42,8 +43,12 @@
             }
             set
             {
-                _word = value;
-                checkGender();  // Эр, эмийг олно.
+                if (value != null)
+                {
+                    _word = value;
+                    checkGender();  // Эр, эмийг олно.
+                    OnPropertyChanged("Word");
+                }
             }
         }
 
@@ -61,6 +66,7 @@
             set
             {
                 _gender = value;
+                OnPropertyChanged("Gender");
             }
         }
 
@@ -94,5 +100,21 @@
             Gender = gender.Unknown;
             return gender.Unknown;
         }
+
+        #region INotifyPropertyChanged Members
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        private void OnPropertyChanged(string propertyName)
+        {
+            PropertyChangedEventHandler handler = PropertyChanged;
+
+            if (handler != null)
+            {
+                handler(this, new PropertyChangedEventArgs(propertyName));
+            }
+        }
+
+        #endregion
     }
 }

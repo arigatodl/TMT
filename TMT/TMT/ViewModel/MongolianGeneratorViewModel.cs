@@ -20,6 +20,7 @@
             _data = new MongolianGeneratorModel();
 
             Execute = new GenerateCommand(this);
+            Save = new SaveRuleCommand(this);
         }
 
         /// <summary>
@@ -44,18 +45,52 @@
             for (int i = 1; i < Data.RawData.Split(' ').Length; i++)
             {
                 suffixes.Add(Data.RawData.Split(' ')[i]);
+                Console.WriteLine(suffixes[i-1]);
             }
 
             TMT.Rule.MongolianGenerator.Instance.Generate(root, suffixes);  // Generating
 
             Data.Results = TMT.Rule.MongolianGenerator.Instance.Results;
+
+            for (int i = 0; i < TMT.Rule.MongolianGenerator.Instance.Results.Count; i++)
+            {
+                Console.WriteLine(TMT.Rule.MongolianGenerator.Instance.ResultWord.Word);
+            }
+        }
+
+        /// <summary>
+        /// Saves the rule to the mongodb
+        /// </summary>
+        public void SaveRule()
+        {
+            if (TMT.Rule.MongolianGenerator.Instance.Results != null)
+            {
+                Console.WriteLine("YES");
+                foreach (var rule in TMT.Rule.MongolianGenerator.Instance.Results)
+                {
+                    if (rule.Rule.Root.Word != null && rule.Rule.Root.Word != "")
+                    {
+                        Mongo.Instance.Database.GetCollection<TMT.Rule.GeneratorRule>("GeneratorRuleTable").Save(rule.Rule);
+                    }
+                }
+            }
+            else Console.WriteLine("NO");
         }
 
         #region Commands
         /// <summary>
-        /// Gets the TranslateViaText command for the ViewModel
+        /// Gets the Execute command for the ViewModel
         /// </summary>
         public ICommand Execute
+        {
+            get;
+            private set;
+        }
+
+        /// <summary>
+        /// Gets the Save command for the ViewModel
+        /// </summary>
+        public ICommand Save
         {
             get;
             private set;
