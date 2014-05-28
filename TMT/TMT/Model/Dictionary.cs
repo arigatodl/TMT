@@ -13,12 +13,12 @@ namespace TMT.Model
     [BsonIgnoreExtraElements]
     public class Dictionary :  INotifyPropertyChanged
     {
-        private string tLWord;
+        private string _tLWord;
         public ObjectId Id { get; set; }
-        private string sLWord;
-        private string type;
-        private string suffix;
-        private string tLSuffix;
+        private string _sLWord;
+        private string _type;
+        private List<string> _suffixes;
+        private Boolean _isIllegal;
 
         /// <summary>
         /// Parameterized Constructer
@@ -26,16 +26,16 @@ namespace TMT.Model
         /// <param name="arg0">Source Language Word</param>
         /// <param name="arg1">Target Language Word</param>
         /// <param name="arg2">Type</param>
-        /// <param name="arg3">Suffix</param>
-        public Dictionary(String arg0, String arg1, String arg2, String arg3)
+        /// <param name="arg3">Suffixes</param>
+        public Dictionary(String arg0, String arg1, String arg2, List<String> arg3)
         {
             SLWord = arg0;
             TLWord = arg1;
             Type = arg2;
-            Suffix = arg3;
-            TLSuffix = "";
+            Suffixes = arg3;
         }
         
+        #region Getters and Setters
         /// <summary>
         /// Gets or sets the Source Language Word
         /// </summary>
@@ -43,28 +43,12 @@ namespace TMT.Model
         {
             get
             {
-                return sLWord;
+                return _sLWord;
             }
             set
             {
-                sLWord = value;
+                _sLWord = value;
                 OnPropertyChanged("SLWord");
-            }
-        }
-
-        /// <summary>
-        /// Gets TLSuffix of the word
-        /// </summary>
-        public string TLSuffix
-        {
-            get
-            {
-                return tLSuffix;
-            }
-            set
-            {
-                tLSuffix = value;
-                OnPropertyChanged("TLSuffix");
             }
         }
 
@@ -76,11 +60,11 @@ namespace TMT.Model
         {
             get
             {
-                return tLWord;
+                return _tLWord;
             }
             set
             {
-                tLWord = value;
+                _tLWord = value;
                 OnPropertyChanged("TLWord");
             }
         }
@@ -94,11 +78,11 @@ namespace TMT.Model
         {
             get
             {
-                return type;
+                return _type;
             }
             set
             {
-                type = value;
+                _type = value;
                 OnPropertyChanged("Type");
             }
         }
@@ -107,19 +91,36 @@ namespace TMT.Model
         /// Gets or sets the Suffix of the word
         /// Ex. Fut, Aor, Loc, ...
         /// </summary>
-        public string Suffix
+        public List<string> Suffixes
         {
             get
             {
-                return suffix;
+                return _suffixes;
             }
             set
             {
-                suffix = value;
-                OnPropertyChanged("Suffix");
+                _suffixes = value;
+                OnPropertyChanged("Suffixes");
             }
         }
 
+        /// <summary>
+        /// Gets or sets the isIllegal of the word
+        /// Ex. би ын = миний
+        /// </summary>
+        public Boolean IsIllegal
+        {
+            get
+            {
+                return _isIllegal;
+            }
+            set
+            {
+                _isIllegal = value;
+                OnPropertyChanged("IsIllegal");
+            }
+        }
+        #endregion
         #region INotifyPropertyChanged Members
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -135,6 +136,5 @@ namespace TMT.Model
         }
 
         #endregion
-
     }
 }

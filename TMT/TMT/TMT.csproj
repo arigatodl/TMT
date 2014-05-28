@@ -92,8 +92,11 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Command\SaveCommand.cs" />
+    <Compile Include="Command\RuleWindowCommand.cs" />
     <Compile Include="Command\SaveRuleCommand.cs" />
     <Compile Include="Command\GenerateCommand.cs" />
+    <Compile Include="Idiom.cs" />
     <Compile Include="Model\MongolianGeneratorModel.cs" />
     <Compile Include="Rule\MongolianGeneratorResult.cs" />
     <Compile Include="Mongolian\MongolianSuffix.cs" />
@@ -101,8 +104,16 @@
     <Compile Include="Mongolian\MongolianLetter.cs" />
     <Compile Include="Rule\GeneratorRule.cs" />
     <Compile Include="Rule\MongolianGenerator.cs" />
+    <Compile Include="ViewModel\IdiomViewModel.cs" />
+    <Compile Include="ViewModel\MongolianGeneratorListViewModel.cs" />
     <Compile Include="ViewModel\MongolianGeneratorViewModel.cs" />
     <Compile Include="ViewModel\TMDictionaryViewModel.cs" />
+    <Compile Include="View\IdiomView.xaml.cs">
+      <DependentUpon>IdiomView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\MongolianGeneratorListView.xaml.cs">
+      <DependentUpon>MongolianGeneratorListView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="View\MongolianGeneratorView.xaml.cs">
       <DependentUpon>MongolianGeneratorView.xaml</DependentUpon>
     </Compile>
@@ -116,6 +127,10 @@
     <Page Include="Control\LoadingAnimation.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\IdiomView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="View\MainWindowView.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -145,6 +160,10 @@
       <DependentUpon>MainWindowView.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="View\MongolianGeneratorListView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="View\MongolianGeneratorView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

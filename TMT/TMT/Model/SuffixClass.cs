@@ -14,47 +14,48 @@ namespace TMT.Model
     [BsonIgnoreExtraElements]
     class SuffixClass : INotifyPropertyChanged
     {
-        private String tLSuffix;
-        private String suffix;
+        private String _tLSuffix;
+        private String _sLSuffix;
         public ObjectId Id { get; set; }
 
         /// <summary>
         /// Parameterized constructor
         /// </summary>
-        /// <param name="arg0">Suffix</param>
-        /// <param name="arg1">TLSuffix</param>
+        /// <param name="arg0">Source Language Suffix</param>
+        /// <param name="arg1">Target Language Suffix</param>
         public SuffixClass(String arg0, String arg1)
         {
-            Suffix = arg0;
+            SLSuffix = arg0;
             TLSuffix = arg1; 
         }
 
+        #region Getters and Setters
         public string TLSuffix
         {
             get
             {
-                return tLSuffix;
+                return _tLSuffix;
             }
             set
             {
-                tLSuffix = value;
+                _tLSuffix = value;
                 OnPropertyChanged("TLSuffix");
             }
         }
 
-        public string Suffix
+        public string SLSuffix
         {
             get
             {
-                return suffix;
+                return _sLSuffix;
             }
             set
             {
-                suffix = value;
-                OnPropertyChanged("Suffix");
+                _sLSuffix = value;
+                OnPropertyChanged("SLSuffix");
             }
         }
-
+        #endregion
         #region INotifyPropertyChanged Members
 
         public event PropertyChangedEventHandler PropertyChanged;

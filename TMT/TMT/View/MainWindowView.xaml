@@ -204,20 +204,27 @@
         </Grid.Resources>
 
         <Grid.RowDefinitions>
+            <RowDefinition Height="50"/>
             <RowDefinition Height="0.1*"/>
             <RowDefinition Height="60"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
-            
             <ColumnDefinition Width="0.5*"/>
             <ColumnDefinition Width="0.5*"/>
         </Grid.ColumnDefinitions>
         
        
+        <Grid Grid.Row="0" Grid.ColumnSpan="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="0.5*"/>
+                <ColumnDefinition Width="0.5*"/>
+            </Grid.ColumnDefinitions>
+            <Button Grid.Column="0" Width="50" Content="Дүрэм" Command="{Binding RuleWindow}"/>
+            <Button Grid.Column="1" Width="50" Content="Толь"/>
+        </Grid>
         
-        
-        <TextBox Text="{Binding Data}" Grid.Column="0" TextWrapping="wrap" VerticalScrollBarVisibility="auto"/>
-        <Border Grid.Column="1" BorderThickness="1" BorderBrush="Black" Background="Gray">
+        <TextBox Text="{Binding Data}" Grid.Row="1" Grid.Column="0" TextWrapping="wrap" VerticalScrollBarVisibility="auto"/>
+        <Border Grid.Row="1" Grid.Column="1" BorderThickness="1" BorderBrush="Black" Background="Gray">
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height =" 0.8*"/>
@@ -250,23 +257,31 @@
                                         </MultiBinding>
                                     </TextBox.ToolTip>
                                 </TextBox>
+                                <TextBox Foreground="White" Template="{StaticResource TextBoxBaseControlTemplate}" Background="Transparent" Text="{Binding Dict.IsIllegal}" Visibility="{Binding IsShown,Converter={StaticResource BoolToVisible}}"/>
                                 <Label Foreground="White" Content="+" Visibility="{Binding IsShown,Converter={StaticResource BoolToVisible}}"/>
-                                <TextBox Template="{StaticResource TextBoxBaseControlTemplate}" Foreground="White" Background="Transparent" Text ="{Binding Dict.TLSuffix}" ToolTip="{Binding Dict.Suffix}" Visibility="{Binding IsShown,Converter={StaticResource BoolToVisible}}"/>
-                                <TextBox Template="{StaticResource TextBoxBaseControlTemplate}" Foreground="White" Background="Transparent" Text ="{Binding Suffix.TLSuffix}" ToolTip="{Binding Suffix.Suffix}" Visibility="{Binding IsShown,Converter={StaticResource BoolToVisible}}"/>
-                            </StackPanel>
+                                    <ListBox ItemsSource="{Binding Suffixes}" Background="Transparent" Visibility="{Binding IsShown,Converter={StaticResource BoolToVisible}}">
+                                        <ListBox.ItemTemplate>
+                                            <DataTemplate>
+                                                <StackPanel Orientation="Vertical">
+                                                    <TextBox Template="{StaticResource TextBoxBaseControlTemplate}" Foreground="White" Background="Transparent" Text ="{Binding TLSuffix}" ToolTip="{Binding SLSuffix}"/>
+                                                </StackPanel>
+                                            </DataTemplate>
+                                        </ListBox.ItemTemplate>
+                                    </ListBox>
+                                </StackPanel>
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
             </ScrollViewer>
-            <Button BorderBrush="Transparent" Background="Transparent" Command="{Binding CancelUpdateDB}" Content="{StaticResource Decline}" Grid.Row ="1" Width ="30" Height = "30" Visibility="{Binding ChangeState, Converter={StaticResource BoolToVisible}}"/>
-            <Button BorderBrush="Transparent" Background="Transparent" Command="{Binding AcceptUpdateDB}" Content="{StaticResource Accept}" Grid.Row ="1" Grid.Column="1" Width ="30" Height = "30" Visibility="{Binding ChangeState, Converter={StaticResource BoolToVisible}}"/>
+            <Button BorderBrush="Transparent" Background="Transparent" Command="{Binding CancelUpdateDB}" Content="{StaticResource Decline}" Grid.Row ="1" Width ="30" Height = "30"/>
+            <Button BorderBrush="Transparent" Background="Transparent" Command="{Binding AcceptUpdateDB}" Content="{StaticResource Accept}" Grid.Row ="1" Grid.Column="1" Width ="30" Height = "30"/>
         </Grid>
         </Border>
-        <Grid Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="2">
+        <Grid Grid.Column="0" Grid.Row="2" Grid.ColumnSpan="2">
             <Button Background="Transparent" Content="Орчуулах" Command="{Binding TranslateViaText}" Grid.Column="0" Width="60" Height="50" HorizontalAlignment="Center"/>
         </Grid>
         
-        <Border Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="0" Grid.RowSpan="2" Background="Black" Opacity="0.4" Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisible}}">
+        <Border Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="0" Grid.RowSpan="3" Background="Black" Opacity="0.4" Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisible}}">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="0.6*"/>

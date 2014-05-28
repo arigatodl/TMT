@@ -1,0 +1,15 @@
+﻿<Window x:Class="TMT.View.IdiomView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="IdiomView" Height="300" Width="300">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="0.5*"/>
+            <RowDefinition Height="0.5*"/>
+            <RowDefinition Height="50"/>
+        </Grid.RowDefinitions>
+        <TextBox Grid.Row="0" Text="{Binding SLText}"/>
+        <TextBox Grid.Row="1" Text="{Binding TLText}"/>
+        <Button Grid.Row="2" Width="50" Content="Нэмэх" Command="{Binding Save}"/>
+    </Grid>
+</Window>

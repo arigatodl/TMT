@@ -13,25 +13,26 @@ namespace TMT.Model
 
     class DandS : INotifyPropertyChanged
     {
-        private Dictionary dict;
-        private SuffixClass suffix;
-        private String translationWord;
-        private Boolean isShown;
-        private String rawWord;
-        private Boolean skipTranslation;
+        private Dictionary _dict;
+        private List<SuffixClass> _suffixes;
+        private String _translationWord;
+        private Boolean _isShown;
+        private String _rawWord;
+        private Boolean _skipTranslation;
 
         /// <summary>
         /// Parameterized constructor
         /// </summary>
         /// <param name="arg0">Dictionary</param>
-        /// <param name="arg1">SuffixClass</param>
-        public DandS(Dictionary arg0, SuffixClass arg1)
+        /// <param name="arg1">Suffixes</param>
+        public DandS(Dictionary arg0, List<SuffixClass> arg1)
         {
-            dict = arg0;
-            suffix = arg1;
+            Dict = arg0;
+            Suffixes = arg1;
             ShowDetails = new ShowDetailsCommand(this);
         }
 
+        #region Getters and Setters
         /// <summary>
         /// Gets and sets the dict
         /// </summary>
@@ -39,11 +40,11 @@ namespace TMT.Model
         {
             get
             {
-                return dict;
+                return _dict;
             }
             set
             {
-                dict = value;
+                _dict = value;
                 OnPropertyChanged("Dict");
             }
         }
@@ -51,16 +52,16 @@ namespace TMT.Model
         /// <summary>
         /// Gets and sets the suffix
         /// </summary>
-        public SuffixClass Suffix
+        public List<SuffixClass> Suffixes
         {
             get
             {
-                return suffix;
+                return _suffixes;
             }
             set
             {
-                suffix = value;
-                OnPropertyChanged("Suffix");
+                _suffixes = value;
+                OnPropertyChanged("Suffixes");
             }
         }
 
@@ -71,11 +72,11 @@ namespace TMT.Model
         {
             get
             {
-                return translationWord;
+                return _translationWord;
             }
             set
             {
-                translationWord = value;
+                _translationWord = value;
                 OnPropertyChanged("TranslationWord");
             }
         }
@@ -87,11 +88,11 @@ namespace TMT.Model
         {
             get
             {
-                return isShown;
+                return _isShown;
             }
             set
             {
-                isShown = value;
+                _isShown = value;
                 OnPropertyChanged("IsShown");
             }
         }
@@ -103,11 +104,11 @@ namespace TMT.Model
         {
             get
             {
-                return skipTranslation;
+                return _skipTranslation;
             }
             set
             {
-                skipTranslation = value;
+                _skipTranslation = value;
                 OnPropertyChanged("SkipTranslation");
             }
         }
@@ -128,15 +129,15 @@ namespace TMT.Model
         {
             get
             {
-                return rawWord;
+                return _rawWord;
             }
             set
             {
-                rawWord = value;
+                _rawWord = value;
                 OnPropertyChanged("RawWord");
             }
         }
-
+        #endregion
         #region INotifyPropertyChanged Members
 
         public event PropertyChangedEventHandler PropertyChanged;

@@ -34,8 +34,10 @@ namespace TMT.ViewModel
         private ObservableCollection<DandS> dandss;
         private Boolean isLoading;
 
-        // Checkers
-        private Boolean isException;
+        //Logical values
+        List<SuffixClass> Suffixes;
+        string Translation;
+        int size;
 
         const string readPath = "C:\\Users\\Public\\iTranslator\\outputText.txt";
         const string writePath = "C:\\Users\\Public\\iTranslator\\inputText.txt";
@@ -43,157 +45,17 @@ namespace TMT.ViewModel
         const string generateWritePath = "..\\..\\Resources\\RFConvPre\\iGen.txt";
         const string generateReadPath = "..\\..\\Resources\\RFConvPre\\result_g.txt";
 
-        string SLWord;
-        string Type;
-        string Suffix;
-
         public MainViewModel()
         {
             dandss = new AsyncObservableCollection<DandS>();
             IsLoading = false;
 
-            dandss.CollectionChanged += dandss_CollectionChanged;
             TranslateViaText = new TranslateViaTextCommand(this);
             TranslateViaVoice = new TranslateViaVoiceCommand(this);
             AcceptUpdateDB = new AcceptUpdateDBCommand(this);
             CancelUpdateDB = new DeclineUpdateDBCommand(this);
+            RuleWindow = new RuleWindowCommand(this);
         }
-
-        /// <summary>
-        /// Adds event handlers to Dands objects
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        void dandss_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
-        {
-            if (e.Action == NotifyCollectionChangedAction.Remove)
-            {
-                foreach (DandS item in e.OldItems)
-                {
-                    item.Dict.PropertyChanged -= EntityViewModelPropertyChanged;
-                    item.Suffix.PropertyChanged -= EntityViewModelPropertyChanged;
-                }
-            }
-            else if (e.Action == NotifyCollectionChangedAction.Add)
-            {
-                foreach (DandS item in e.NewItems)
-                {
-                    item.Dict.PropertyChanged += EntityViewModelPropertyChanged;
-                    item.Suffix.PropertyChanged += EntityViewModelPropertyChanged;
-                }
-            }
-        }
-
-        /// <summary>
-        /// Notifies if TLSuffix or TLWord is changed
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void EntityViewModelPropertyChanged(object sender, PropertyChangedEventArgs e)
-        {
-            if (e.PropertyName.Equals("TLSuffix") || e.PropertyName.Equals("TLWord"))
-            {
-                if (isException) return; 
-                ChangeState = true;
-            }
-        }
-
-        /// <summary>
-        /// Gets data
-        /// </summary>
-        public string Data
-        {
-            get
-            {
-                return data;
-            }
-            set
-            {
-                data = value;
-            }
-        }
-
-        /// <summary>
-        /// Gets changeState
-        /// </summary>
-        public Boolean ChangeState
-        {
-            get
-            {
-                return changeState;
-            }
-            set
-            {
-                changeState = value;
-                OnPropertyChanged("ChangeState");
-            }
-        }
-
-        /// <summary>
-        /// Gets dandsd\s
-        /// </summary>
-        public ObservableCollection<DandS> Dandss
-        {
-            get
-            {
-                return dandss;
-            }
-        }
-
-        /// <summary>
-        /// Gets or sets isLoading
-        /// </summary>
-        public Boolean IsLoading
-        {
-            get
-            {
-                return isLoading;
-            }
-            set
-            {
-                isLoading = value;
-                OnPropertyChanged("IsLoading");
-            }
-        }
-
-        #region Commands
-        /// <summary>
-        /// Gets the TranslateViaText command for the ViewModel
-        /// </summary>
-        public ICommand TranslateViaText
-        {
-            get;
-            private set;
-        }
-
-        /// <summary>
-        /// Gets the TranslateViaVoice command for the ViewModel
-        /// </summary>
-        public ICommand TranslateViaVoice
-        {
-            get;
-            private set;
-        }
-
-        /// <summary>
-        /// Gets the AcceptUpdateDB command for the ViewModel
-        /// </summary>
-        public ICommand AcceptUpdateDB
-        {
-            get;
-            private set;
-        }
-
-        /// <summary>
-        /// Gets the CancelUpdateDB command for the ViewModel
-        /// </summary>
-        public ICommand CancelUpdateDB
-        {
-            get;
-            private set;
-        }
-
-        #endregion
 
         /// <summary>
         /// Writes the input data to the output text file
@@ -208,138 +70,217 @@ namespace TMT.ViewModel
         /// </summary>
         public void extract()
         {
-                IMongoQuery query;
-
+                Suffixes = new List<SuffixClass>();
                 dandss.Clear();
                 changeState = false;
-                isException = true;
 
                 string[] lines = System.IO.File.ReadAllLines(readPath,Encoding.UTF8);
 
+                // Extracting morphologies from the text files
                 int count = 0;
                 foreach (string line in lines)
                 {
                     count++;
                     if (count <= 1) continue;   // Skipping UTF8 file characters
-                    SLWord = line.Split(';')[0];
-                    Type = line.Split(';')[1];
-                    Suffix = "";
 
-                    if (line.Split(';').Length > 3)
+                    string _sLWord;
+                    string _type;
+                    List<string> _suffixes = new List<string>();
+                    
+                    _sLWord = line.Split(';')[0];
+                    _type = line.Split(';')[1];
+                    if (line.Split(';').Length > 3) // If suffix exists
                     {
                         string temp;
                         foreach (string suffix in line.Split(';')[3].Split('+'))
                         {
                             temp = suffix;
                             if (suffix.EndsWith(")")) { temp = suffix.Remove(suffix.Length - 1); }
-                            if (!temp.Equals("Nom") && !temp.Equals("Pnon") && !temp.Equals("A2sg") && !temp.Equals("A3sg")) Suffix = temp;
+                            _suffixes.Add(temp);
                         }
                     }
-
 
                     Dictionary tempDictionary = null;
-                    SuffixClass tempSuffixClass = null;
+                    List<SuffixClass> tempSuffixClass = new List<SuffixClass>();
 
+                    // Checking if the dand exists in the list before
                     foreach(DandS dand in dandss)
                     {
-                        if (dand.Dict.SLWord.Equals(SLWord) && dand.Dict.Type.Equals(Type) && dand.Dict.Suffix.Equals(Suffix))
+                        if (dand.Dict.SLWord.Equals(_sLWord) && dand.Dict.Type.Equals(_type))
                         {
-                            tempDictionary = dand.Dict;
-                            break;
+                            Boolean dictExists = true; 
+                            foreach (string newSuffix in _suffixes)
+                            {
+                                Boolean suffixExists = false;
+                                foreach (string oldSuffix in dand.Dict.Suffixes)
+                                {
+                                    if (newSuffix.Equals(oldSuffix))
+                                    {
+                                        suffixExists = true;
+                                        break;
+                                    }
+                                }
+                                if (suffixExists == false) { dictExists = false; break; }
+                            }
+                            if (dictExists == true) { tempDictionary = dand.Dict; break; }
                         }
                     }
 
-                    foreach (DandS dand in dandss)
+                    foreach(string newSuffix in _suffixes)
                     {
-                        if (dand.Suffix.Suffix.Equals(Suffix))
+                        Boolean suffixExists = false;
+                        foreach (SuffixClass suffixClass in Suffixes)
                         {
-                            tempSuffixClass = dand.Suffix;
-                            break;
+                            if (newSuffix.Equals(suffixClass.SLSuffix))
+                            {
+                                tempSuffixClass.Add(suffixClass);
+                                suffixExists = true; break;
+                            }
+                        }
+                        if (suffixExists == false)
+                        {
+                            SuffixClass temp = new SuffixClass(newSuffix, "");
+                            Suffixes.Add(temp);
+                            tempSuffixClass.Add(temp);
                         }
                     }
 
-                    if (tempSuffixClass == null) tempSuffixClass = new SuffixClass(Suffix, "");
-                    if (tempDictionary == null) tempDictionary = new Dictionary(SLWord, "", Type, Suffix);
+
+                    if (tempDictionary == null) tempDictionary = new Dictionary(_sLWord, "", _type, _suffixes);
                     dandss.Add(new DandS(tempDictionary, tempSuffixClass));
-                    Console.WriteLine(SLWord + ":" + count);
                 }
 
-                var dbCollection1 = Mongo.Instance.Database.GetCollection<Dictionary>("skipTypes");
-                var dbCollection2 = Mongo.Instance.Database.GetCollection<Dictionary>("iWords");
-                var dbCollection3 = Mongo.Instance.Database.GetCollection<SuffixClass>("iSuffixes");
-
-                foreach (DandS d in dandss)
+                MongoCursor<Dictionary> _dictionaryCursor = Mongo.Instance.Database.GetCollection<Dictionary>("Words").FindAll();
+                MongoCursor<SuffixClass> _suffixCursor = Mongo.Instance.Database.GetCollection<SuffixClass>("Suffixes").FindAll();
+                
+                //Suffixes
+                foreach (SuffixClass d in Suffixes)
                 {
-                    query = Query.And(
-                        Query.Matches("Type", d.Dict.Type)
-                        );
-                    var filteredCollection1 = dbCollection1.FindOne(query);
-                    if (filteredCollection1 != null)
+                    Boolean suffixExists = false;
+                    foreach (var suffix in _suffixCursor)
                     {
-                        d.Dict.TLWord = d.Dict.SLWord;
-                        d.TranslationWord = d.Dict.SLWord;
-                        d.SkipTranslation = true;
+                        if (d.SLSuffix.Equals(suffix.SLSuffix))
+                        {
+                            d.Id = suffix.Id;
+                            d.TLSuffix = suffix.TLSuffix;
+                            suffixExists = true; break;
+                        }
                     }
-                    else
+                    if (suffixExists == false)
                     {
-                        d.SkipTranslation = false;
-                        query = Query.And(
-                                    Query.Matches("SLWord", d.Dict.SLWord),
-                                    Query.Matches("Type", d.Dict.Type),
-                                    Query.Matches("Suffix", d.Dict.Suffix)
-                                );
-                        var filteredCollection2 = dbCollection2.FindOne(query);
+                        d.TLSuffix = "";
+                    }
+                }
+                
+                // Searching from the database
+                for(int i =0; i < dandss.Count; i++)
+                {
+                    DandS d = dandss[i];
+                    Boolean dictExists = false;
 
-                        if (filteredCollection2 != null)
+
+                    // Dictionary
+                    foreach(var dict in _dictionaryCursor)
+                    {
+                        if (dict.SLWord.Equals(d.Dict.SLWord) && dict.Type.Equals(d.Dict.Type))
                         {
-                            d.Dict.Id = filteredCollection2.Id;
-                            d.Dict.TLWord = filteredCollection2.TLWord;
-                            if (d.Dict.TLWord.Contains(' '))
+                            if (dict.Suffixes.Count == d.Dict.Suffixes.Count)
                             {
-                                d.TranslationWord = d.Dict.TLWord;
-                                d.SkipTranslation = true;
-                            }
-
-                            query = Query.And(
-                                       Query.Matches("SLWord", d.Dict.SLWord),
-                                       Query.Matches("Type", d.Dict.Type),
-                                       Query.Matches("Suffix", d.Dict.Suffix),
-                                       Query.Matches("TLSuffix", d.Dict.TLSuffix)
-                                    );
-                            var filteredCollection3 = dbCollection2.FindOne(query);
-
-                            if (filteredCollection3 != null)
-                            {
-                                d.Dict.TLSuffix = filteredCollection3.TLSuffix;
+                                foreach (string oldSuffix in d.Dict.Suffixes)
+                                {
+                                    Console.WriteLine(oldSuffix);
+                                    Boolean suffixExists = false;
+                                    foreach (string newSuffix in dict.Suffixes)
+                                    {
+                                        if (oldSuffix.Equals(newSuffix)) { suffixExists = true; dictExists = true; break; }
+                                    }
+                                    if (suffixExists == false)
+                                    {
+                                        dictExists = false;
+                                        break;
+                                    }
+                                }
                             }
                         }
-                        else{
-                            query = Query.And(
-                                    Query.Matches("SLWord", d.Dict.SLWord)
-                                );
-                            var filteredCollection5 = dbCollection2.FindOne(query);
-                            if(filteredCollection5 != null){
-                                d.Dict.Id = filteredCollection5.Id;
-                                d.Dict.TLWord = filteredCollection5.TLWord;
-                            }
-                            else
+                        if (dictExists == true)
+                        {
+                            d.Dict.Id = dict.Id;
+                            d.Dict.TLWord = dict.TLWord;
+                            d.Dict.IsIllegal = dict.IsIllegal;
+                            break;
+                        }
+                    }
+                    if (dictExists == false)
+                    {
+                        Console.WriteLine(d.Dict.SLWord + "WTF");
+                        foreach (var dict in _dictionaryCursor)
+                        {
+                            if (dict.SLWord.Equals(d.Dict.SLWord) && dict.Type.Equals(d.Dict.Type))
                             {
-                                d.Dict.TLWord = "???";
+                                dictExists = true;
+                                d.Dict.Id = dict.Id;
+                                d.Dict.TLWord = dict.TLWord;
+                                d.Dict.IsIllegal = dict.IsIllegal;
+                                break;
                             }
                         }
-                        
-                        query = Query.And(
-                                       Query.Matches("Suffix", d.Dict.Suffix)
-                                    );
-                        var filteredCollection4 = dbCollection3.FindOne(query);
-                        if (filteredCollection4 != null)
+                        if (dictExists == false)
                         {
-                            d.Suffix.Id = filteredCollection4.Id;
-                            d.Suffix.TLSuffix = filteredCollection4.TLSuffix;
+                            foreach (var dict in _dictionaryCursor)
+                            {
+                                if (dict.SLWord.Equals(d.Dict.SLWord))
+                                {
+                                    dictExists = true;
+                                    d.Dict.Id = dict.Id;
+                                    d.Dict.TLWord = dict.TLWord;
+                                    d.Dict.IsIllegal = dict.IsIllegal;
+                                    break;
+                                }
+                            }
+                            if (dictExists == false)
+                            {
+                                d.Dict.TLWord = d.Dict.SLWord;
+                                d.Dict.IsIllegal = false;
+                            }
                         }
                     }
                 }
-                isException = false;
+        }
+
+        /// <summary>
+        /// Checks 
+        /// </summary>
+        public void checkIdioms(int a)
+        {
+            MongoCursor<Idiom> _idiomCursor = Mongo.Instance.Database.GetCollection<Idiom>("Idioms").FindAll();
+
+            foreach (Idiom idiom in _idiomCursor)
+            {
+                if (idiom.Value.Equals(dandss[a].Dict.SLWord))
+                {
+                    dfs(idiom, a + 1);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Depth First Search for Idiom
+        /// </summary>
+        public void dfs(Idiom idiom, int a)
+        {
+            if (idiom.Child == null) return;
+            for (int i = 0; i < idiom.Child.Count; i++)
+            {
+                if (idiom.Child[i].Value.Equals(dandss[a].Dict.SLWord))
+                {
+                    if (idiom.Child[i].IsEnd == true)
+                    {
+                        Translation = idiom.Child[i].Translation;
+                        size = a;
+                    }
+                    dfs(idiom.Child[i], a + 1);
+                }
+            }
         }
 
         /// <summary>
@@ -399,20 +340,22 @@ namespace TMT.ViewModel
                 else data = line;
             }*/
 
-            List<string> data = new List<string>();
-
             foreach(DandS d in dandss)
             {
-                if (d.Dict.TLSuffix != null && d.Dict.TLSuffix != "")
+                if (d.Dict.IsIllegal == false)
                 {
-                    data.Add(d.Dict.TLSuffix);
+                    List<string> _suffixes = new List<string>();
+                    foreach (var suffix in d.Suffixes)
+                    {
+                        if (suffix.TLSuffix != "")
+                            _suffixes.Add(suffix.TLSuffix);
+                    }
+                    d.TranslationWord = TMT.Rule.MongolianGenerator.Instance.Generate(d.Dict.TLWord, _suffixes);
                 }
                 else
                 {
-                    data.Add(d.Suffix.TLSuffix);
+                    d.TranslationWord = d.Dict.TLWord;
                 }
-
-                d.TranslationWord = TMT.Rule.MongolianGenerator.Instance.Generate(d.Dict.TLWord, data);
             }
         }
 
@@ -481,12 +424,18 @@ namespace TMT.ViewModel
         /// </summary>
         public void Update()
         {
-            isException = false;
-            var dbCollection1 = Mongo.Instance.Database.GetCollection<Dictionary>("iWords");
-            var dbCollection2 = Mongo.Instance.Database.GetCollection<Dictionary>("iSuffixes");
             foreach(DandS d in dandss){
-                dbCollection1.Save(d.Dict);
-                dbCollection2.Save(d.Suffix);
+                if (!d.Dict.SLWord.Equals(d.Dict.TLWord))
+                {
+                    Mongo.Instance.Database.GetCollection<Dictionary>("Words").Save(d.Dict);
+                }
+            }
+            foreach (var suffix in Suffixes)
+            {
+                if (suffix.TLSuffix != "")
+                {
+                    Mongo.Instance.Database.GetCollection<Dictionary>("Suffixes").Save(suffix);
+                }
             }
 
             extract();
@@ -502,6 +451,120 @@ namespace TMT.ViewModel
             generate();
         }
 
+        /// <summary>
+        /// Shows the Rule window
+        /// </summary>
+        public void ShowRuleWindow()
+        {
+            TMT.View.MongolianGeneratorView window = new View.MongolianGeneratorView();
+            window.ShowDialog();
+        }
+
+        #region Getters and Setters
+        /// <summary>
+        /// Gets data
+        /// </summary>
+        public string Data
+        {
+            get
+            {
+                return data;
+            }
+            set
+            {
+                data = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets changeState
+        /// </summary>
+        public Boolean ChangeState
+        {
+            get
+            {
+                return changeState;
+            }
+            set
+            {
+                changeState = value;
+                OnPropertyChanged("ChangeState");
+            }
+        }
+
+        /// <summary>
+        /// Gets dandsd\s
+        /// </summary>
+        public ObservableCollection<DandS> Dandss
+        {
+            get
+            {
+                return dandss;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets isLoading
+        /// </summary>
+        public Boolean IsLoading
+        {
+            get
+            {
+                return isLoading;
+            }
+            set
+            {
+                isLoading = value;
+                OnPropertyChanged("IsLoading");
+            }
+        }
+        #endregion
+        #region Commands
+        /// <summary>
+        /// Gets the TranslateViaText command for the ViewModel
+        /// </summary>
+        public ICommand TranslateViaText
+        {
+            get;
+            private set;
+        }
+
+        /// <summary>
+        /// Gets the TranslateViaVoice command for the ViewModel
+        /// </summary>
+        public ICommand TranslateViaVoice
+        {
+            get;
+            private set;
+        }
+
+        /// <summary>
+        /// Gets the AcceptUpdateDB command for the ViewModel
+        /// </summary>
+        public ICommand AcceptUpdateDB
+        {
+            get;
+            private set;
+        }
+
+        /// <summary>
+        /// Gets the CancelUpdateDB command for the ViewModel
+        /// </summary>
+        public ICommand CancelUpdateDB
+        {
+            get;
+            private set;
+        }
+
+        /// <summary>
+        /// Gets the RuleWindow command for the ViewModel
+        /// </summary>
+        public ICommand RuleWindow
+        {
+            get;
+            private set;
+        }
+        #endregion
         #region INotifyPropertyChanged Members
 
         public event PropertyChangedEventHandler PropertyChanged;
