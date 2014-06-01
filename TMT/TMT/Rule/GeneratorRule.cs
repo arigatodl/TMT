@@ -23,7 +23,6 @@
         /// </summary>
         public GeneratorRule() 
         {
-            Id = ObjectId.GenerateNewId();
             Root = new MongolianWord();
             RootChangePart = new MongolianWord();
             RootChangeRule = new MongolianWord();

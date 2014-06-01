@@ -163,7 +163,7 @@
                 tempResult.Suffix = Suffixes[i].Word;
                 Boolean exists = false;
                 chosenRule = null;
-                for(int j = ResultWord.Word.Length - 1; j >= 0; j--)
+                for(int j = 0; j < ResultWord.Word.Length; j++)
                 {
                     begin = ResultWord.Word.Substring(j); 
                     exists = false;
@@ -176,16 +176,10 @@
                             break;
                         }
                     }
-                    if (exists == false)
-                    {
-                        begin = ResultWord.Word.Substring(j - 1);
-                        break;
-                    }
                 }
-
                 if (chosenRule != null)
                 {
-                    for (int k = 0; k < Suffixes[i].Word.Length; k++)
+                    for (int k = Suffixes[i].Word.Length - 1; k >= 0; k--)
                     {
                         exists = false;
                         foreach (var rule in ruleTableCursor)
@@ -197,8 +191,8 @@
                                 break;
                             }
                         }
-
-                        if (exists == false)
+                        Console.WriteLine(exists);
+                        if (exists == true)
                         {
                             // Язгуурын төгсгөл солих
                             if (chosenRule.RootChangePart != null && chosenRule.RootChangePart.Word != null && chosenRule.RootChangePart.Word.Length > 0)
@@ -215,14 +209,14 @@
                             {
                                 ResultWord.Word += chosenRule.Middle.Word;
                             }
-                            ResultWord.Word += Suffixes[i].Word;
+                            ResultWord.Word = repair(ResultWord, Suffixes[i]);
                             break;
                         }
                     }
                 }
                 else
                 {
-                   ResultWord.Word += Suffixes[i].Word;
+                    ResultWord.Word = repair(ResultWord, Suffixes[i]);
                 }
 
                 if (chosenRule == null)
@@ -234,7 +228,29 @@
                 Results.Add(tempResult);
                 Console.WriteLine(i);
             }
+            
             return ResultWord.Word;
+        }
+
+        public string repair(MongolianWord a, MongolianWord b)
+        {
+            char A = 'а';
+            for (int i = a.Word.Length - 1; i >= 0; i--)
+            {
+                if (a.Word[i].GetLetterType() == Letter.letterType.Vowel)
+                {
+                    A = a.Word[i];
+                    break;
+                }
+            }
+            for (int i = 0; i < b.Word.Length; i++)
+            {
+                if (b.Word[i].GetLetterType() == Letter.letterType.Vowel)
+                {
+                    b.Word.Replace(b.Word[i],b.Word[i].ChangeLetter(A));
+                }
+            }
+            return a.Word + b.Word;
         }
 
         #region INotifyPropertyChanged Members

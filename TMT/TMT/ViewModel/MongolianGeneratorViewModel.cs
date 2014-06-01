@@ -65,16 +65,16 @@
         {
             if (TMT.Rule.MongolianGenerator.Instance.Results != null)
             {
-                Console.WriteLine("YES");
                 foreach (var rule in TMT.Rule.MongolianGenerator.Instance.Results)
                 {
                     if (rule.Rule.Root.Word != null && rule.Rule.Root.Word != "")
                     {
+                        Console.WriteLine("WTF");
                         Mongo.Instance.Database.GetCollection<TMT.Rule.GeneratorRule>("GeneratorRuleTable").Save(rule.Rule);
-                    }
+                    } 
+                    Console.WriteLine(rule.Rule.Root.Word + "+" + rule.Rule.Suffix.Word);
                 }
             }
-            else Console.WriteLine("NO");
         }
 
         #region Commands

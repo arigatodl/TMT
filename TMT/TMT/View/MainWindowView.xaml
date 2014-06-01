@@ -219,8 +219,8 @@
                 <ColumnDefinition Width="0.5*"/>
                 <ColumnDefinition Width="0.5*"/>
             </Grid.ColumnDefinitions>
-            <Button Grid.Column="0" Width="50" Content="Дүрэм" Command="{Binding RuleWindow}"/>
-            <Button Grid.Column="1" Width="50" Content="Толь"/>
+            <Button Background="Transparent" Grid.Column="0" Width="50" Content="Дүрэм" Command="{Binding RuleWindow}"/>
+            <Button Background="Transparent" Grid.Column="1" Width="50" Content="Хэлц үг" Command="{Binding IdiomWindow}"/>
         </Grid>
         
         <TextBox Text="{Binding Data}" Grid.Row="1" Grid.Column="0" TextWrapping="wrap" VerticalScrollBarVisibility="auto"/>

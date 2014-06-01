@@ -19,6 +19,7 @@ namespace TMT.Model
         private Boolean _isShown;
         private String _rawWord;
         private Boolean _skipTranslation;
+        public Boolean Idiom;
 
         /// <summary>
         /// Parameterized constructor

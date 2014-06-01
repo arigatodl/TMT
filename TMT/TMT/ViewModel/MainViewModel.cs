@@ -55,6 +55,7 @@ namespace TMT.ViewModel
             AcceptUpdateDB = new AcceptUpdateDBCommand(this);
             CancelUpdateDB = new DeclineUpdateDBCommand(this);
             RuleWindow = new RuleWindowCommand(this);
+            IdiomWindow = new IdiomWindowCommand(this);
         }
 
         /// <summary>
@@ -178,6 +179,8 @@ namespace TMT.ViewModel
                     DandS d = dandss[i];
                     Boolean dictExists = false;
 
+                    checkIdioms(i);
+                    if (dandss[i].SkipTranslation == true || dandss[i].Idiom == true) continue;
 
                     // Dictionary
                     foreach(var dict in _dictionaryCursor)
@@ -188,7 +191,6 @@ namespace TMT.ViewModel
                             {
                                 foreach (string oldSuffix in d.Dict.Suffixes)
                                 {
-                                    Console.WriteLine(oldSuffix);
                                     Boolean suffixExists = false;
                                     foreach (string newSuffix in dict.Suffixes)
                                     {
@@ -212,13 +214,11 @@ namespace TMT.ViewModel
                     }
                     if (dictExists == false)
                     {
-                        Console.WriteLine(d.Dict.SLWord + "WTF");
                         foreach (var dict in _dictionaryCursor)
                         {
                             if (dict.SLWord.Equals(d.Dict.SLWord) && dict.Type.Equals(d.Dict.Type))
                             {
                                 dictExists = true;
-                                d.Dict.Id = dict.Id;
                                 d.Dict.TLWord = dict.TLWord;
                                 d.Dict.IsIllegal = dict.IsIllegal;
                                 break;
@@ -231,7 +231,6 @@ namespace TMT.ViewModel
                                 if (dict.SLWord.Equals(d.Dict.SLWord))
                                 {
                                     dictExists = true;
-                                    d.Dict.Id = dict.Id;
                                     d.Dict.TLWord = dict.TLWord;
                                     d.Dict.IsIllegal = dict.IsIllegal;
                                     break;
@@ -252,6 +251,8 @@ namespace TMT.ViewModel
         /// </summary>
         public void checkIdioms(int a)
         {
+            Translation = "";
+            size = 0;
             MongoCursor<Idiom> _idiomCursor = Mongo.Instance.Database.GetCollection<Idiom>("Idioms").FindAll();
 
             foreach (Idiom idiom in _idiomCursor)
@@ -259,6 +260,21 @@ namespace TMT.ViewModel
                 if (idiom.Value.Equals(dandss[a].Dict.SLWord))
                 {
                     dfs(idiom, a + 1);
+                    if (size > 0)
+                    {
+                        dandss[a].Dict.TLWord = Translation;
+                        dandss[a].Idiom = true;
+                        for (int i = a + 1; i <= size; i++)
+                        {
+                            for(int j = 0; j < dandss[i].Dict.Suffixes.Count; j++)
+                            {
+                                dandss[a].Suffixes.Add(dandss[i].Suffixes[j]);
+                                Console.WriteLine(dandss[i].Dict.Suffixes[j]);
+                            }
+                            dandss[i].SkipTranslation = true;
+                        }
+                    }
+                    break;
                 }
             }
         }
@@ -342,6 +358,7 @@ namespace TMT.ViewModel
 
             foreach(DandS d in dandss)
             {
+                if (d.SkipTranslation == true) continue;
                 if (d.Dict.IsIllegal == false)
                 {
                     List<string> _suffixes = new List<string>();
@@ -350,6 +367,7 @@ namespace TMT.ViewModel
                         if (suffix.TLSuffix != "")
                             _suffixes.Add(suffix.TLSuffix);
                     }
+                    Console.WriteLine(d.Dict.TLWord);
                     d.TranslationWord = TMT.Rule.MongolianGenerator.Instance.Generate(d.Dict.TLWord, _suffixes);
                 }
                 else
@@ -425,7 +443,7 @@ namespace TMT.ViewModel
         public void Update()
         {
             foreach(DandS d in dandss){
-                if (!d.Dict.SLWord.Equals(d.Dict.TLWord))
+                if (!d.Dict.SLWord.Equals(d.Dict.TLWord) && d.SkipTranslation == false && d.Idiom == false)
                 {
                     Mongo.Instance.Database.GetCollection<Dictionary>("Words").Save(d.Dict);
                 }
@@ -457,6 +475,15 @@ namespace TMT.ViewModel
         public void ShowRuleWindow()
         {
             TMT.View.MongolianGeneratorView window = new View.MongolianGeneratorView();
+            window.ShowDialog();
+        }
+
+        /// <summary>
+        /// Shows the Idiom window
+        /// </summary>
+        public void ShowIdiomWindow()
+        {
+            TMT.View.IdiomView window = new View.IdiomView();
             window.ShowDialog();
         }
 
@@ -560,6 +587,15 @@ namespace TMT.ViewModel
         /// Gets the RuleWindow command for the ViewModel
         /// </summary>
         public ICommand RuleWindow
+        {
+            get;
+            private set;
+        }
+
+        /// <summary>
+        /// Gets the IdiomWindow command for the ViewModel
+        /// </summary>
+        public ICommand IdiomWindow
         {
             get;
             private set;
